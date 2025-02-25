@@ -10,30 +10,30 @@ import (
 type UserID = uint
 
 type User struct {
-    ID        UserID    `json:"id"`
-    Username  string    `json:"username"`
-    Password  string    `json:"-"`
-    CreatedAt time.Time `json:"created_at"`
+    ID        UserID
+    Username  string
+    Password  string
+    CreatedAt time.Time
 }
 
 type FilmID = uint
 
 type Film struct {
-    ID          FilmID    `json:"id"`
-    UserID      UserID    `json:"user_id"`
-    User        User      `json:"user"`
-    Title       string    `json:"title"`
-    ReleaseDate time.Time `json:"release_date"`
-    Genre       string    `json:"genre"`
-    Director    string    `json:"director"`
+    ID          FilmID
+    UserID      UserID
+    User        User
+    Title       string
+    ReleaseDate time.Time
+    Genre       string
+    Director    string
     Cast
-    Synopsis  string    `json:"synopsis"`
-    CreatedAt time.Time `json:"created_at"`
-    UpdatedAt time.Time `json:"updated_at"`
+    Synopsis  string
+    CreatedAt time.Time
+    UpdatedAt time.Time
 }
 
 type Cast struct {
-    Members []string `json:"cast"`
+    Members []string
 }
 
 func (c *Cast) Scan(value interface{}) error {

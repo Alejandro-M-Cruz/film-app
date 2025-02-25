@@ -23,7 +23,7 @@ func (c *Controller) Index(context echo.Context) error {
         return context.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
     }
 
-    return context.JSON(http.StatusOK, films)
+    return context.JSON(http.StatusOK, NewCollection(films))
 }
 
 func (c *Controller) Show(context echo.Context) error {
@@ -42,7 +42,7 @@ func (c *Controller) Show(context echo.Context) error {
         return context.JSON(http.StatusInternalServerError, map[string]string{"message": "Unexpected error occurred"})
     }
 
-    return context.JSON(http.StatusOK, film)
+    return context.JSON(http.StatusOK, NewDetail(film))
 }
 
 func (c *Controller) Create(context echo.Context) error {
