@@ -2,7 +2,6 @@ package film
 
 import (
     "errors"
-    "film-app/models"
     "github.com/labstack/echo/v4"
     "net/http"
     "strconv"
@@ -32,7 +31,7 @@ func (c *Controller) Show(context echo.Context) error {
         return context.JSON(http.StatusBadRequest, map[string]string{"message": "invalid film id"})
     }
 
-    film, err := c.service.GetFilmByID(models.FilmID(filmId))
+    film, err := c.service.GetFilmByID(FilmID(filmId))
 
     if err != nil {
         if errors.Is(err, ErrFilmNotFound) {
@@ -61,7 +60,7 @@ func (c *Controller) Delete(context echo.Context) error {
         return context.JSON(http.StatusBadRequest, map[string]string{"message": "invalid film id"})
     }
 
-    err := c.service.DeleteFilmByID(models.FilmID(filmId))
+    err := c.service.DeleteFilmByID(FilmID(filmId))
     if err != nil {
         if errors.Is(err, ErrFilmNotFound) {
             return context.JSON(http.StatusNotFound, map[string]string{"message": "film not found"})

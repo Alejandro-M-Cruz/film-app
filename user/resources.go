@@ -1,13 +1,11 @@
 package user
 
-import "film-app/models"
-
 type Resource struct {
-    ID       models.UserID `json:"id"`
-    Username string        `json:"username"`
+    ID       UserID `json:"id"`
+    Username string `json:"username"`
 }
 
-func NewResource(user models.User) Resource {
+func NewResource(user User) Resource {
     return Resource{
         ID:       user.ID,
         Username: user.Username,

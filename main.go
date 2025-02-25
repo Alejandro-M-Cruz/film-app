@@ -1,6 +1,7 @@
 package main
 
 import (
+    "film-app/auth"
     "film-app/config"
     "film-app/film"
     "film-app/middleware"
@@ -28,7 +29,7 @@ func main() {
     filmService := film.NewDBService(db)
     filmController := film.NewController(filmService)
 
-    filmRouteGroup := e.Group("/films", middleware.Authorize)
+    filmRouteGroup := e.Group("/films", auth.AuthMiddleware)
     filmRouteGroup.GET("", filmController.Index)
     filmRouteGroup.GET("/:id", filmController.Show)
     filmRouteGroup.POST("", filmController.Create)

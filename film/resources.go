@@ -1,28 +1,25 @@
 package film
 
 import (
-    "film-app/models"
     "film-app/user"
     "time"
 )
 
 type Resource struct {
-    ID          models.FilmID `json:"id"`
-    UserID      models.UserID `json:"user_id"`
-    Title       string        `json:"title"`
-    ReleaseDate time.Time     `json:"release_date"`
-    Genre       string        `json:"genre"`
-    Director    string        `json:"director"`
-    Cast        []string      `json:"cast"`
-    Synopsis    string        `json:"synopsis"`
-    CreatedAt   time.Time     `json:"created_at"`
-    UpdatedAt   time.Time     `json:"updated_at"`
+    ID          FilmID    `json:"id"`
+    Title       string    `json:"title"`
+    ReleaseDate time.Time `json:"release_date"`
+    Genre       string    `json:"genre"`
+    Director    string    `json:"director"`
+    Cast        []string  `json:"cast"`
+    Synopsis    string    `json:"synopsis"`
+    CreatedAt   time.Time `json:"created_at"`
+    UpdatedAt   time.Time `json:"updated_at"`
 }
 
-func NewResource(film models.Film) Resource {
+func NewResource(film Film) Resource {
     return Resource{
         ID:          film.ID,
-        UserID:      film.UserID,
         Title:       film.Title,
         ReleaseDate: film.ReleaseDate,
         Genre:       film.Genre,
@@ -38,7 +35,7 @@ type Collection struct {
     Films []Resource `json:"films"`
 }
 
-func NewCollection(films []models.Film) Collection {
+func NewCollection(films []Film) Collection {
     var resources []Resource
 
     for _, film := range films {
@@ -50,12 +47,12 @@ func NewCollection(films []models.Film) Collection {
 
 type Detail struct {
     Resource
-    User user.Resource `json:"user"`
+    CreatedBy user.Resource `json:"created_by"`
 }
 
-func NewDetail(film models.Film) Detail {
+func NewDetail(film Film) Detail {
     return Detail{
-        Resource: NewResource(film),
-        User:     user.NewResource(film.User),
+        Resource:  NewResource(film),
+        CreatedBy: user.NewResource(film.User),
     }
 }

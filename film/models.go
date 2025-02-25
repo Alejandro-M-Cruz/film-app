@@ -1,27 +1,19 @@
-package models
+package film
 
 import (
     "database/sql/driver"
     "errors"
+    "film-app/user"
     "strings"
     "time"
 )
-
-type UserID = uint
-
-type User struct {
-    ID        UserID
-    Username  string
-    Password  string
-    CreatedAt time.Time
-}
 
 type FilmID = uint
 
 type Film struct {
     ID          FilmID
-    UserID      UserID
-    User        User
+    UserID      user.UserID
+    User        user.User
     Title       string
     ReleaseDate time.Time
     Genre       string
