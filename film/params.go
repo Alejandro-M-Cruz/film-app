@@ -17,6 +17,8 @@ var PageSizeOptions = map[int]bool{
     50: true,
 }
 
+const DefaultPageSize = 10
+
 func NewIndexParams(params map[string][]string) IndexParams {
     pageStr, ok := params["page"]
     page := 1
@@ -30,12 +32,12 @@ func NewIndexParams(params map[string][]string) IndexParams {
     }
 
     pageSizeStr, ok := params["page_size"]
-    pageSize := 10
+    pageSize := DefaultPageSize
 
     if ok {
         pageSize, err = strconv.Atoi(pageSizeStr[0])
         if err != nil || !PageSizeOptions[pageSize] {
-            pageSize = 10
+            pageSize = DefaultPageSize
         }
     }
 

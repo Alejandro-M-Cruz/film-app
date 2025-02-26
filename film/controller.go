@@ -2,7 +2,6 @@ package film
 
 import (
     "errors"
-    "fmt"
     "github.com/labstack/echo/v4"
     "net/http"
     "strconv"
@@ -23,8 +22,6 @@ func (c *Controller) Index(context echo.Context) error {
     if err != nil {
         return context.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
     }
-
-    fmt.Printf("collection: %v\n", NewCollection(films, params))
 
     return context.JSON(http.StatusOK, NewCollection(films, params))
 }
