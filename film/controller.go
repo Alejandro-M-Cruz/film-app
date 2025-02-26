@@ -22,7 +22,7 @@ func (c *Controller) Index(context echo.Context) error {
         return context.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
     }
 
-    return context.JSON(http.StatusOK, NewCollection(paginatedFilms, params))
+    return context.JSON(http.StatusOK, NewPaginatedCollection(paginatedFilms, params))
 }
 
 func (c *Controller) Show(context echo.Context) error {
