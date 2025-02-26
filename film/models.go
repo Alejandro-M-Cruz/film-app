@@ -4,11 +4,21 @@ import (
     "database/sql/driver"
     "errors"
     "film-app/user"
+    "strconv"
     "strings"
     "time"
 )
 
 type FilmID uint
+
+func ParseFilmID(id string) (FilmID, error) {
+    parsedID, err := strconv.Atoi(id)
+    if err != nil {
+        return 0, errors.New("invalid film id")
+    }
+
+    return FilmID(parsedID), nil
+}
 
 type Film struct {
     ID          FilmID

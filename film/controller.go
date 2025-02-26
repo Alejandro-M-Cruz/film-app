@@ -4,7 +4,6 @@ import (
     "errors"
     "github.com/labstack/echo/v4"
     "net/http"
-    "strconv"
 )
 
 type Controller struct {
@@ -27,12 +26,12 @@ func (c *Controller) Index(context echo.Context) error {
 }
 
 func (c *Controller) Show(context echo.Context) error {
-    filmId, ok := strconv.Atoi(context.Param("id"))
-    if ok != nil {
-        return context.JSON(http.StatusBadRequest, map[string]string{"message": "invalid film id"})
+    filmId, err := ParseFilmID(context.Param("id"))
+    if err != nil {
+        return context.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
     }
 
-    film, err := c.service.GetFilmByID(FilmID(filmId))
+    film, err := c.service.GetFilmByID(filmId)
 
     if err != nil {
         if errors.Is(err, ErrFilmNotFound) {
@@ -56,12 +55,12 @@ func (c *Controller) Update(context echo.Context) error {
 }
 
 func (c *Controller) Delete(context echo.Context) error {
-    filmId, ok := strconv.Atoi(context.Param("id"))
-    if ok != nil {
-        return context.JSON(http.StatusBadRequest, map[string]string{"message": "invalid film id"})
+    filmId, err := ParseFilmID(context.Param("id"))
+    if err != nil {
+        return context.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
     }
 
-    err := c.service.DeleteFilmByID(FilmID(filmId))
+    err = c.service.DeleteFilmByID(filmId)
     if err != nil {
         if errors.Is(err, ErrFilmNotFound) {
             return context.JSON(http.StatusNotFound, map[string]string{"message": "film not found"})
