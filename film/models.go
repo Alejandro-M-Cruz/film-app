@@ -28,7 +28,7 @@ type Cast struct {
     Members []string
 }
 
-func (c *Cast) Scan(value interface{}) error {
+func (c *Cast) Scan(value any) error {
     membersStr, ok := value.(string)
     if !ok {
         return errors.New("cast must be a string")

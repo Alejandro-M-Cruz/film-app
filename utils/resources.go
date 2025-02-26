@@ -1,13 +1,25 @@
 package utils
 
-import "time"
+import (
+    "encoding/json"
+    "time"
+)
 
 type Date struct {
     time.Time
 }
 
+func NewDate(date time.Time) Date {
+    return Date{date}
+}
+
 func (d *Date) UnmarshalJSON(b []byte) error {
-    date, err := time.Parse(time.DateOnly, string(b))
+    var dateStr string
+    if err := json.Unmarshal(b, &dateStr); err != nil {
+        return err
+    }
+
+    date, err := time.Parse(time.DateOnly, dateStr)
     if err != nil {
         return err
     }
@@ -17,5 +29,5 @@ func (d *Date) UnmarshalJSON(b []byte) error {
 }
 
 func (d Date) MarshalJSON() ([]byte, error) {
-    return []byte(d.Time.Format(time.DateOnly)), nil
+    return json.Marshal(d.Time.Format(time.DateOnly))
 }

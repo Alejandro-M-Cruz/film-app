@@ -22,7 +22,7 @@ func NewResource(film Film) Resource {
     return Resource{
         ID:          film.ID,
         Title:       film.Title,
-        ReleaseDate: utils.Date{Time: film.ReleaseDate},
+        ReleaseDate: utils.NewDate(film.ReleaseDate),
         Genre:       film.Genre,
         Director:    film.Director,
         Cast:        film.Cast.Members,
