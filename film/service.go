@@ -9,6 +9,7 @@ var ErrFilmNotFound = errors.New("film not found")
 
 type Service interface {
     GetAllFilms() ([]Film, error)
+    GetFilms(params IndexParams) ([]Film, error)
     GetFilmByID(id FilmID) (Film, error)
     DeleteFilmByID(id FilmID) error
 }
@@ -25,6 +26,21 @@ func (s *DBService) GetAllFilms() ([]Film, error) {
     var films []Film
 
     result := s.db.Find(&films)
+    if result.Error != nil {
+        return []Film{}, result.Error
+    }
+
+    return films, nil
+}
+
+func (s *DBService) GetFilms(params IndexParams) ([]Film, error) {
+    var films []Film
+
+    result := s.db.
+        Order("created_at desc").
+        Offset((params.Page - 1) * params.PageSize).
+        Limit(params.PageSize).
+        Find(&films)
     if result.Error != nil {
         return []Film{}, result.Error
     }

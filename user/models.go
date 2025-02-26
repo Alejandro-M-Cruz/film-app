@@ -2,7 +2,7 @@ package user
 
 import "time"
 
-type UserID = uint
+type UserID uint
 
 type User struct {
     ID        UserID

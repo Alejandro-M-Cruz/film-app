@@ -8,7 +8,7 @@ import (
     "time"
 )
 
-type FilmID = uint
+type FilmID uint
 
 type Film struct {
     ID          FilmID

@@ -32,17 +32,25 @@ func NewResource(film Film) Resource {
 }
 
 type Collection struct {
-    Films []Resource `json:"films"`
+    Films      []Resource `json:"films"`
+    Page       int        `json:"page"`
+    PageSize   int        `json:"page_size"`
+    TotalPages int        `json:"total_pages"`
 }
 
-func NewCollection(films []Film) Collection {
-    var resources []Resource
+func NewCollection(films []Film, params IndexParams) Collection {
+    resources := make([]Resource, 0)
 
     for _, film := range films {
         resources = append(resources, NewResource(film))
     }
 
-    return Collection{Films: resources}
+    return Collection{
+        Films:      resources,
+        Page:       params.Page,
+        PageSize:   params.PageSize,
+        TotalPages: 0,
+    }
 }
 
 type Detail struct {

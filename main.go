@@ -4,7 +4,6 @@ import (
     "film-app/auth"
     "film-app/config"
     "film-app/film"
-    "film-app/middleware"
     "github.com/joho/godotenv"
     "github.com/labstack/echo/v4"
     "gorm.io/driver/sqlite"

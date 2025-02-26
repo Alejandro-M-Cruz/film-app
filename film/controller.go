@@ -2,6 +2,7 @@ package film
 
 import (
     "errors"
+    "fmt"
     "github.com/labstack/echo/v4"
     "net/http"
     "strconv"
@@ -16,13 +17,16 @@ func NewController(service Service) *Controller {
 }
 
 func (c *Controller) Index(context echo.Context) error {
-    films, err := c.service.GetAllFilms()
+    params := NewIndexParams(context.QueryParams())
+    films, err := c.service.GetFilms(params)
 
     if err != nil {
         return context.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
     }
 
-    return context.JSON(http.StatusOK, NewCollection(films))
+    fmt.Printf("collection: %v\n", NewCollection(films, params))
+
+    return context.JSON(http.StatusOK, NewCollection(films, params))
 }
 
 func (c *Controller) Show(context echo.Context) error {
