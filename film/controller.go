@@ -15,7 +15,7 @@ func NewController(service Service) *Controller {
 }
 
 func (c *Controller) Index(context echo.Context) error {
-    params := NewIndexParams(context.QueryParams())
+    params := NewParams(context.QueryParams())
     films, err := c.service.GetFilms(params)
 
     if err != nil {

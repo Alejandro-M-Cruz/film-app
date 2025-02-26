@@ -9,7 +9,7 @@ var ErrFilmNotFound = errors.New("film not found")
 
 type Service interface {
     GetAllFilms() ([]Film, error)
-    GetFilms(params IndexParams) ([]Film, error)
+    GetFilms(params Params) ([]Film, error)
     GetFilmByID(id FilmID) (Film, error)
     DeleteFilmByID(id FilmID) error
 }
@@ -33,7 +33,7 @@ func (s *DBService) GetAllFilms() ([]Film, error) {
     return films, nil
 }
 
-func (s *DBService) GetFilms(params IndexParams) ([]Film, error) {
+func (s *DBService) GetFilms(params Params) ([]Film, error) {
     var films []Film
 
     query := s.db.
@@ -48,9 +48,9 @@ func (s *DBService) GetFilms(params IndexParams) ([]Film, error) {
         case FilterByGenres:
             query = query.Where("genre IN ?", f.Genres)
         case FilterByReleaseDateAfter:
-            query = query.Where("release_date > ?", f.Date)
+            query = query.Where("release_date >= ?", f.Date)
         case FilterByReleaseDateBefore:
-            query = query.Where("release_date < ?", f.Date)
+            query = query.Where("release_date <= ?", f.Date)
         case FilterByReleaseDateBetween:
             query = query.Where("release_date BETWEEN ? AND ?", f.Start, f.End)
         }

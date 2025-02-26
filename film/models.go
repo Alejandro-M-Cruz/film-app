@@ -26,12 +26,54 @@ type Film struct {
     User        user.User
     Title       string
     ReleaseDate time.Time
-    Genre       string
+    Genre       Genre
     Director    string
     Cast
     Synopsis  string
     CreatedAt time.Time
     UpdatedAt time.Time
+}
+
+type Genre string
+
+func (g *Genre) Scan(value any) error {
+    genre, ok := value.(string)
+    if !ok {
+        return errors.New("genre must be a string")
+    }
+
+    *g = Genre(genre)
+    return nil
+}
+
+func (g Genre) Value() (driver.Value, error) {
+    return string(g), nil
+}
+
+const (
+    Action    Genre = "action"
+    Adventure Genre = "adventure"
+    Comedy    Genre = "comedy"
+    Drama     Genre = "drama"
+    Fantasy   Genre = "fantasy"
+    Horror    Genre = "horror"
+    Mystery   Genre = "mystery"
+    Romance   Genre = "romance"
+    Thriller  Genre = "thriller"
+    Western   Genre = "western"
+)
+
+var Genres = map[string]Genre{
+    "action":    Action,
+    "adventure": Adventure,
+    "comedy":    Comedy,
+    "drama":     Drama,
+    "fantasy":   Fantasy,
+    "horror":    Horror,
+    "mystery":   Mystery,
+    "romance":   Romance,
+    "thriller":  Thriller,
+    "western":   Western,
 }
 
 type Cast struct {

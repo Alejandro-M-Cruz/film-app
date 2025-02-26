@@ -39,7 +39,7 @@ type Collection struct {
     TotalPages int        `json:"total_pages"`
 }
 
-func NewCollection(films []Film, params IndexParams) Collection {
+func NewCollection(films []Film, params Params) Collection {
     resources := make([]Resource, 0)
 
     for _, film := range films {

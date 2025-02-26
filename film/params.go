@@ -2,10 +2,11 @@ package film
 
 import (
     "strconv"
+    "strings"
     "time"
 )
 
-type IndexParams struct {
+type Params struct {
     Page     int
     PageSize int
     Filters  []Filter
@@ -19,7 +20,7 @@ var PageSizeOptions = map[int]bool{
 
 const DefaultPageSize = 10
 
-func NewIndexParams(params map[string][]string) IndexParams {
+func NewParams(params map[string][]string) Params {
     pageStr, ok := params["page"]
     page := 1
     var err error
@@ -41,7 +42,7 @@ func NewIndexParams(params map[string][]string) IndexParams {
         }
     }
 
-    return IndexParams{
+    return Params{
         Page:     page,
         PageSize: pageSize,
         Filters:  ParseFilters(params),
@@ -56,11 +57,25 @@ func ParseFilters(params map[string][]string) []Filter {
     filters := make([]Filter, 0)
 
     for key, values := range params {
+        if len(values) == 0 {
+            continue
+        }
+
         switch key {
         case "title":
             filters = append(filters, FilterByTitle{PartialTitle: values[0]})
         case "genres":
-            filters = append(filters, FilterByGenres{Genres: values})
+            genreStrings := strings.Split(values[0], ",")
+            genres := make([]Genre, 0)
+
+            for _, genre := range genreStrings {
+                if _, ok := Genres[genre]; !ok {
+                    continue
+                }
+                genres = append(genres, Genre(genre))
+            }
+
+            filters = append(filters, FilterByGenres{Genres: genres})
         case "released_after":
             date, err := time.Parse(time.RFC3339, values[0])
             if err != nil {
@@ -74,14 +89,22 @@ func ParseFilters(params map[string][]string) []Filter {
             }
             filters = append(filters, FilterByReleaseDateBefore{Date: date})
         case "released_between":
-            start, err := time.Parse(time.RFC3339, values[0])
+            dates := strings.Split(values[0], ",")
+
+            if len(dates) != 2 {
+                continue
+            }
+
+            start, err := time.Parse(time.RFC3339, dates[0])
             if err != nil {
                 continue
             }
-            end, err := time.Parse(time.RFC3339, values[1])
+
+            end, err := time.Parse(time.RFC3339, dates[1])
             if err != nil {
                 continue
             }
+
             filters = append(filters, FilterByReleaseDateBetween{Start: start, End: end})
         }
     }
@@ -98,7 +121,7 @@ func (f FilterByTitle) Name() string {
 }
 
 type FilterByGenres struct {
-    Genres []string
+    Genres []Genre
 }
 
 func (f FilterByGenres) Name() string {
