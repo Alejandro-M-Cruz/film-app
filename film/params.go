@@ -7,9 +7,9 @@ import (
 )
 
 type Params struct {
-    Page     int
-    PageSize int
-    Filters  []Filter
+    Page     int     `json:"page"`
+    PageSize int     `json:"page_size"`
+    Filters  Filters `json:"filters"`
 }
 
 var PageSizeOptions = map[int]bool{
@@ -49,106 +49,75 @@ func NewParams(params map[string][]string) Params {
     }
 }
 
-type Filter interface {
-    Name() string
+type Filters struct {
+    Title          string     `json:"title"`
+    Genres         []Genre    `json:"genres"`
+    ReleasedAfter  *time.Time `json:"released_after"`
+    ReleasedBefore *time.Time `json:"released_before"`
 }
 
-func ParseFilters(params map[string][]string) []Filter {
-    filters := make([]Filter, 0)
+func ParseFilters(params map[string][]string) Filters {
+    return Filters{
+        Title:          parseTitleFilter(params),
+        Genres:         parseGenresFilter(params),
+        ReleasedAfter:  parseReleaseDateAfterFilter(params),
+        ReleasedBefore: parseReleaseDateBeforeFilter(params),
+    }
+}
 
-    for key, values := range params {
-        if len(values) == 0 {
+func parseTitleFilter(params map[string][]string) string {
+    return extractParam(params, "title")
+}
+
+func parseGenresFilter(params map[string][]string) []Genre {
+    genreStrings := strings.Split(extractParam(params, "genres"), ",")
+    genres := make([]Genre, 0)
+
+    for _, genre := range genreStrings {
+        if _, ok := Genres[genre]; !ok {
             continue
         }
-
-        switch key {
-        case "title":
-            filters = append(filters, FilterByTitle{PartialTitle: values[0]})
-        case "genres":
-            genreStrings := strings.Split(values[0], ",")
-            genres := make([]Genre, 0)
-
-            for _, genre := range genreStrings {
-                if _, ok := Genres[genre]; !ok {
-                    continue
-                }
-                genres = append(genres, Genre(genre))
-            }
-
-            filters = append(filters, FilterByGenres{Genres: genres})
-        case "released_after":
-            date, err := time.Parse(time.RFC3339, values[0])
-            if err != nil {
-                continue
-            }
-            filters = append(filters, FilterByReleaseDateAfter{Date: date})
-        case "released_before":
-            date, err := time.Parse(time.RFC3339, values[0])
-            if err != nil {
-                continue
-            }
-            filters = append(filters, FilterByReleaseDateBefore{Date: date})
-        case "released_between":
-            dates := strings.Split(values[0], ",")
-
-            if len(dates) != 2 {
-                continue
-            }
-
-            start, err := time.Parse(time.RFC3339, dates[0])
-            if err != nil {
-                continue
-            }
-
-            end, err := time.Parse(time.RFC3339, dates[1])
-            if err != nil {
-                continue
-            }
-
-            filters = append(filters, FilterByReleaseDateBetween{Start: start, End: end})
-        }
+        genres = append(genres, Genre(genre))
     }
 
-    return filters
+    return genres
 }
 
-type FilterByTitle struct {
-    PartialTitle string
+func parseReleaseDateAfterFilter(params map[string][]string) *time.Time {
+    dateStr := extractParam(params, "released_after")
+
+    if dateStr == "" {
+        return nil
+    }
+
+    date, err := time.Parse(time.DateOnly, dateStr)
+    if err != nil {
+        return nil
+    }
+
+    return &date
 }
 
-func (f FilterByTitle) Name() string {
-    return "title"
+func parseReleaseDateBeforeFilter(params map[string][]string) *time.Time {
+    dateStr := extractParam(params, "released_before")
+
+    if dateStr == "" {
+        return nil
+    }
+
+    date, err := time.Parse(time.DateOnly, dateStr)
+    if err != nil {
+        return nil
+    }
+
+    return &date
 }
 
-type FilterByGenres struct {
-    Genres []Genre
-}
+func extractParam(params map[string][]string, key string) string {
+    values, ok := params[key]
+    if !ok || len(values) == 0 {
+        return ""
+    }
 
-func (f FilterByGenres) Name() string {
-    return "genres"
-}
-
-type FilterByReleaseDateAfter struct {
-    Date time.Time
-}
-
-func (f FilterByReleaseDateAfter) Name() string {
-    return "released_after"
-}
-
-type FilterByReleaseDateBefore struct {
-    Date time.Time
-}
-
-func (f FilterByReleaseDateBefore) Name() string {
-    return "released_before"
-}
-
-type FilterByReleaseDateBetween struct {
-    Start time.Time
-    End   time.Time
-}
-
-func (f FilterByReleaseDateBetween) Name() string {
-    return "released_between"
+    return values[0]
 }

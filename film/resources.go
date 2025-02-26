@@ -10,7 +10,7 @@ type Resource struct {
     ID          FilmID     `json:"id"`
     Title       string     `json:"title"`
     ReleaseDate utils.Date `json:"release_date"`
-    Genre       string     `json:"genre"`
+    Genre       Genre      `json:"genre"`
     Director    string     `json:"director"`
     Cast        []string   `json:"cast"`
     Synopsis    string     `json:"synopsis"`
@@ -37,20 +37,22 @@ type Collection struct {
     Page       int        `json:"page"`
     PageSize   int        `json:"page_size"`
     TotalPages int        `json:"total_pages"`
+    Params     Params     `json:"params"`
 }
 
-func NewCollection(films []Film, params Params) Collection {
+func NewCollection(paginatedFilms utils.Page[Film], params Params) Collection {
     resources := make([]Resource, 0)
 
-    for _, film := range films {
+    for _, film := range paginatedFilms.Data {
         resources = append(resources, NewResource(film))
     }
 
     return Collection{
         Films:      resources,
-        Page:       params.Page,
-        PageSize:   params.PageSize,
-        TotalPages: 0,
+        Page:       paginatedFilms.Page,
+        PageSize:   paginatedFilms.PageSize,
+        TotalPages: paginatedFilms.TotalPages,
+        Params:     params,
     }
 }
 

@@ -16,13 +16,13 @@ func NewController(service Service) *Controller {
 
 func (c *Controller) Index(context echo.Context) error {
     params := NewParams(context.QueryParams())
-    films, err := c.service.GetFilms(params)
+    paginatedFilms, err := c.service.GetPaginatedFilms(params)
 
     if err != nil {
         return context.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
     }
 
-    return context.JSON(http.StatusOK, NewCollection(films, params))
+    return context.JSON(http.StatusOK, NewCollection(paginatedFilms, params))
 }
 
 func (c *Controller) Show(context echo.Context) error {
