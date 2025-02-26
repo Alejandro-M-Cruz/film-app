@@ -43,6 +43,6 @@ func (c *Cast) Scan(value interface{}) error {
     return nil
 }
 
-func (c *Cast) Value() (driver.Value, error) {
+func (c Cast) Value() (driver.Value, error) {
     return strings.Join(c.Members, ";"), nil
 }

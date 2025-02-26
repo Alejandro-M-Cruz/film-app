@@ -2,26 +2,27 @@ package film
 
 import (
     "film-app/user"
+    "film-app/utils"
     "time"
 )
 
 type Resource struct {
-    ID          FilmID    `json:"id"`
-    Title       string    `json:"title"`
-    ReleaseDate time.Time `json:"release_date"`
-    Genre       string    `json:"genre"`
-    Director    string    `json:"director"`
-    Cast        []string  `json:"cast"`
-    Synopsis    string    `json:"synopsis"`
-    CreatedAt   time.Time `json:"created_at"`
-    UpdatedAt   time.Time `json:"updated_at"`
+    ID          FilmID     `json:"id"`
+    Title       string     `json:"title"`
+    ReleaseDate utils.Date `json:"release_date"`
+    Genre       string     `json:"genre"`
+    Director    string     `json:"director"`
+    Cast        []string   `json:"cast"`
+    Synopsis    string     `json:"synopsis"`
+    CreatedAt   time.Time  `json:"created_at"`
+    UpdatedAt   time.Time  `json:"updated_at"`
 }
 
 func NewResource(film Film) Resource {
     return Resource{
         ID:          film.ID,
         Title:       film.Title,
-        ReleaseDate: film.ReleaseDate,
+        ReleaseDate: utils.Date{Time: film.ReleaseDate},
         Genre:       film.Genre,
         Director:    film.Director,
         Cast:        film.Cast.Members,
