@@ -30,7 +30,7 @@ func (c *Controller) Register(ctx echo.Context) error {
         return ctx.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
     }
 
-    return ctx.JSON(http.StatusCreated, "")
+    return ctx.NoContent(http.StatusCreated)
 }
 
 func (c *Controller) LogIn(ctx echo.Context) error {

@@ -5,11 +5,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type CustomContext struct {
+type AppContext struct {
 	User *user.User
 	echo.Context
 }
 
-func (c *CustomContext) GetUser() *user.User {
+func (c *AppContext) GetUser() *user.User {
 	return c.User
 }

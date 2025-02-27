@@ -1,42 +1,50 @@
 package auth
 
 import (
-    "film-app/utils"
-    "github.com/labstack/echo/v4"
+	"film-app/utils"
+	"github.com/labstack/echo/v4"
 )
 
-func UseCustomContext(next echo.HandlerFunc, authService Service) echo.HandlerFunc {
-    return func(c echo.Context) error {
-        authorizationHeader := c.Request().Header.Get("Authorization")
-        tokenStr, _ := utils.ExtractJWTFromHeader(authorizationHeader)
-        u, _ := authService.GetCurrentUser(tokenStr)
+type AppContextMiddleware struct {
+	authService Service
+}
 
-        return next(&utils.CustomContext{User: u, Context: c})
-    }
+func NewAppContextMiddleware(authService Service) *AppContextMiddleware {
+	return &AppContextMiddleware{authService}
+}
+
+func (m *AppContextMiddleware) UseCustomContext(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		authorizationHeader := c.Request().Header.Get("Authorization")
+		tokenStr, _ := utils.ExtractJWTFromHeader(authorizationHeader)
+		u, _ := m.authService.GetCurrentUser(tokenStr)
+
+		return next(&utils.AppContext{User: u, Context: c})
+	}
 }
 
 func VerifyAuthenticated(next echo.HandlerFunc) echo.HandlerFunc {
-    return func(c echo.Context) error {
-        cc := c.(*utils.CustomContext)
-        u := cc.GetUser()
+	return func(c echo.Context) error {
+		ac := c.(*utils.AppContext)
+		u := ac.GetUser()
 
-        if u == nil {
-            return echo.ErrUnauthorized
-        }
+		if u == nil {
+			return echo.ErrUnauthorized
+		}
 
-        return next(c)
-    }
+		return next(c)
+	}
 }
 
 func VerifyGuest(next echo.HandlerFunc) echo.HandlerFunc {
-    return func(c echo.Context) error {
-        cc := c.(*utils.CustomContext)
-        u := cc.GetUser()
+	return func(c echo.Context) error {
+		ac := c.(*utils.AppContext)
+		u := ac.GetUser()
 
-        if u != nil {
-            return echo.ErrUnauthorized
-        }
+		if u != nil {
+			return echo.ErrUnauthorized
+		}
 
-        return next(c)
-    }
+		return next(c)
+	}
 }
