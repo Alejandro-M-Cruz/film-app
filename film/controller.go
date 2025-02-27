@@ -1,73 +1,73 @@
 package film
 
 import (
-	"errors"
-	"github.com/labstack/echo/v4"
-	"net/http"
+    "errors"
+    "github.com/labstack/echo/v4"
+    "net/http"
 )
 
 type Controller struct {
-	service Service
+    service Service
 }
 
 func NewController(service Service) *Controller {
-	return &Controller{service}
+    return &Controller{service}
 }
 
-func (c *Controller) Index(context echo.Context) error {
-	params := NewParams(context.QueryParams())
-	paginatedFilms, err := c.service.GetPaginatedFilms(params)
+func (c *Controller) Index(ctx echo.Context) error {
+    params := NewParams(ctx.QueryParams())
+    paginatedFilms, err := c.service.GetPaginatedFilms(params)
 
-	if err != nil {
-		return context.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
-	}
+    if err != nil {
+        return ctx.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+    }
 
-	return context.JSON(http.StatusOK, NewPaginatedCollection(paginatedFilms, params))
+    return ctx.JSON(http.StatusOK, NewPaginatedCollection(paginatedFilms, params))
 }
 
-func (c *Controller) Show(context echo.Context) error {
-	filmId, err := ParseFilmID(context.Param("id"))
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
-	}
+func (c *Controller) Show(ctx echo.Context) error {
+    filmId, err := ParseFilmID(ctx.Param("id"))
+    if err != nil {
+        return ctx.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+    }
 
-	film, err := c.service.GetFilmByID(filmId)
+    film, err := c.service.GetFilmByID(filmId)
 
-	if err != nil {
-		if errors.Is(err, ErrFilmNotFound) {
-			return context.JSON(http.StatusNotFound, map[string]string{"message": "film not found"})
-		}
+    if err != nil {
+        if errors.Is(err, ErrFilmNotFound) {
+            return ctx.JSON(http.StatusNotFound, map[string]string{"message": "film not found"})
+        }
 
-		return context.JSON(http.StatusInternalServerError, map[string]string{"message": "Unexpected error occurred"})
-	}
+        return ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Unexpected error occurred"})
+    }
 
-	return context.JSON(http.StatusOK, NewDetail(film))
+    return ctx.JSON(http.StatusOK, NewDetail(film))
 }
 
-func (c *Controller) Create(context echo.Context) error {
-	//TODO implement me
-	panic("implement me")
+func (c *Controller) Create(ctx echo.Context) error {
+    //TODO implement me
+    panic("implement me")
 }
 
-func (c *Controller) Update(context echo.Context) error {
-	//TODO implement me
-	panic("implement me")
+func (c *Controller) Update(ctx echo.Context) error {
+    //TODO implement me
+    panic("implement me")
 }
 
-func (c *Controller) Delete(context echo.Context) error {
-	filmId, err := ParseFilmID(context.Param("id"))
-	if err != nil {
-		return context.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
-	}
+func (c *Controller) Delete(ctx echo.Context) error {
+    filmId, err := ParseFilmID(ctx.Param("id"))
+    if err != nil {
+        return ctx.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+    }
 
-	err = c.service.DeleteFilmByID(filmId)
-	if err != nil {
-		if errors.Is(err, ErrFilmNotFound) {
-			return context.JSON(http.StatusNotFound, map[string]string{"message": "film not found"})
-		}
+    err = c.service.DeleteFilmByID(filmId)
+    if err != nil {
+        if errors.Is(err, ErrFilmNotFound) {
+            return ctx.JSON(http.StatusNotFound, map[string]string{"message": "film not found"})
+        }
 
-		return context.JSON(http.StatusInternalServerError, map[string]string{"message": "Unexpected error occurred"})
-	}
+        return ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Unexpected error occurred"})
+    }
 
-	return context.NoContent(http.StatusNoContent)
+    return ctx.NoContent(http.StatusNoContent)
 }
