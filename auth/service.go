@@ -1,6 +1,10 @@
 package auth
 
-import "gorm.io/gorm"
+import (
+    "film-app/user"
+    "film-app/utils"
+    "time"
+)
 
 type Service interface {
     Register(username string, password string) error
@@ -8,19 +12,28 @@ type Service interface {
 }
 
 type JWTService struct {
-    db *gorm.DB
+    userService user.Service
 }
 
-func NewJWTService(db *gorm.DB) *JWTService {
-    return &JWTService{db}
+func NewJWTService(userService user.Service) *JWTService {
+    return &JWTService{userService}
 }
 
-func (J *JWTService) Register(username string, password string) error {
-    //TODO implement me
-    panic("implement me")
+func (s *JWTService) Register(username string, password string) error {
+    u := user.User{
+        Username: username,
+        Password: password,
+    }
+    _, err := s.userService.CreateUser(u)
+
+    return err
 }
 
-func (J *JWTService) LogIn(username string, password string) (string, error) {
-    //TODO implement me
-    panic("implement me")
+func (s *JWTService) LogIn(username string, password string) (string, error) {
+    u, err := s.userService.GetUserByUsernameAndPassword(username, password)
+    if err != nil {
+        return "", err
+    }
+
+    return utils.CreateJWT(u, 24*time.Hour)
 }

@@ -38,7 +38,7 @@ type PaginatedCollection struct {
     Params
 }
 
-func NewPaginatedCollection(paginatedFilms utils.Page[Film], params Params) PaginatedCollection {
+func NewPaginatedCollection(paginatedFilms utils.Paginated[Film], params Params) PaginatedCollection {
     resources := make([]Resource, 0)
 
     for _, film := range paginatedFilms.Data {

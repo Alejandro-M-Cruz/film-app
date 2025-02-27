@@ -35,7 +35,7 @@ func (c *Controller) Show(ctx echo.Context) error {
 
     if err != nil {
         if errors.Is(err, ErrFilmNotFound) {
-            return ctx.JSON(http.StatusNotFound, map[string]string{"message": "film not found"})
+            return ctx.JSON(http.StatusNotFound, map[string]string{"message": err.Error()})
         }
 
         return ctx.JSON(http.StatusInternalServerError, map[string]string{"message": "Unexpected error occurred"})

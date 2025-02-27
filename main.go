@@ -17,17 +17,17 @@ func main() {
         panic(err)
     }
 
-    conf := config.InitConfig()
+    config.InitConfig()
 
-    db, err := gorm.Open(sqlite.Open(conf.DBPath), new(gorm.Config))
+    db, err := gorm.Open(sqlite.Open(config.Env.DBPath), new(gorm.Config))
     if err != nil {
         panic(err)
     }
 
     e := echo.New()
 
-    authService := auth.NewJWTService(db)
     userService := user.NewDBService(db)
+    authService := auth.NewJWTService(userService)
     authController := auth.NewController(authService, userService)
 
     authRouteGroup := e.Group("/auth")
@@ -37,7 +37,7 @@ func main() {
     filmService := film.NewDBService(db)
     filmController := film.NewController(filmService)
 
-    filmRouteGroup := e.Group("/films", auth.AuthMiddleware)
+    filmRouteGroup := e.Group("/films", auth.Authorize)
     filmRouteGroup.GET("", filmController.Index)
     filmRouteGroup.GET("/:id", filmController.Show)
     filmRouteGroup.POST("", filmController.Create)
@@ -45,5 +45,5 @@ func main() {
     filmRouteGroup.PATCH("/:id", filmController.Update)
     filmRouteGroup.DELETE("/:id", filmController.Delete)
 
-    e.Logger.Fatal(e.Start(conf.AppUrl))
+    e.Logger.Fatal(e.Start(config.Env.AppUrl))
 }

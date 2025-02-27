@@ -1,15 +1,24 @@
 package auth
 
-import "github.com/labstack/echo/v4"
+import (
+    "film-app/utils"
+    "github.com/labstack/echo/v4"
+)
 
-func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		authHeader := c.Request().Header.Get("Authorization")
+func Authorize(next echo.HandlerFunc) echo.HandlerFunc {
+    return func(c echo.Context) error {
+        authHeader := c.Request().Header.Get("Authorization")
+        if len(authHeader) < 8 || authHeader[:7] != "Bearer " {
+            return echo.ErrUnauthorized
+        }
 
-		if authHeader != "Bearer my_secret" {
-			return echo.ErrUnauthorized
-		}
+        tokenStr := authHeader[7:]
+        err := utils.VerifyJWT(tokenStr)
 
-		return next(c)
-	}
+        if err != nil {
+            return echo.ErrUnauthorized
+        }
+
+        return next(c)
+    }
 }
