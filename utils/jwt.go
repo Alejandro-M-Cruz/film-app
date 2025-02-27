@@ -1,44 +1,59 @@
 package utils
 
 import (
-	"errors"
-	"film-app/config"
-	"film-app/user"
-	"github.com/golang-jwt/jwt/v5"
-	"time"
+    "errors"
+    "film-app/config"
+    "film-app/user"
+    "github.com/golang-jwt/jwt/v5"
+    "time"
 )
 
 var ErrInvalidToken = errors.New("invalid token")
 
-type tokenClaims struct {
-	Username string `json:"username"`
-	jwt.RegisteredClaims
+type TokenClaims struct {
+    Username string `json:"username"`
+    jwt.RegisteredClaims
 }
 
 func CreateJWT(u user.User, expireAfter time.Duration) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaims{
-		Username: u.Username,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    config.Env.AppName,
-			Subject:   u.ID.String(),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expireAfter)),
-		},
-	})
-	return token.SignedString(config.Env.SecretKey)
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims{
+        Username: u.Username,
+        RegisteredClaims: jwt.RegisteredClaims{
+            Subject:   u.ID.String(),
+            Issuer:    config.Env.AppName,
+            IssuedAt:  jwt.NewNumericDate(time.Now()),
+            ExpiresAt: jwt.NewNumericDate(time.Now().Add(expireAfter)),
+        },
+    })
+    return token.SignedString([]byte(config.Env.SecretKey))
 }
 
-func VerifyJWT(tokenStr string) error {
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (any, error) {
-		return []byte(config.Env.SecretKey), nil
-	})
+func VerifyJWT(tokenStr string) (*user.UserID, error) {
+    token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (any, error) {
+        return []byte(config.Env.SecretKey), nil
+    })
 
-	if err != nil {
-		return err
-	}
+    if err != nil {
+        return nil, err
+    }
 
-	if !token.Valid {
-		return ErrInvalidToken
-	}
+    if !token.Valid {
+        return nil, ErrInvalidToken
+    }
 
-	return nil
+    userIDStr := token.Claims.(jwt.MapClaims)["sub"].(string)
+    userId, err := user.ParseUserID(userIDStr)
+    if err != nil {
+        return nil, err
+    }
+
+    return &userId, nil
+}
+
+func ExtractJWTFromHeader(header string) (string, error) {
+    if len(header) < 8 || header[:7] != "Bearer " {
+        return "", ErrInvalidToken
+    }
+
+    return header[7:], nil
 }
