@@ -48,7 +48,7 @@ func (c *Controller) LogIn(ctx echo.Context) error {
 
 	tokenStr, err := c.authService.LogIn(loginRequest.Username, loginRequest.Password)
 	if err != nil {
-		if errors.Is(err, user.ErrUserNotFound) {
+		if errors.Is(err, user.ErrUserNotFound) || errors.Is(err, ErrIncorrectPassword) {
 			return echo.NewHTTPError(http.StatusUnauthorized, "Invalid username or password")
 		}
 		return echo.ErrInternalServerError

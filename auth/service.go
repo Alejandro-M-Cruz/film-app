@@ -3,13 +3,12 @@ package auth
 import (
 	"errors"
 	"film-app/user"
-	"film-app/utils"
 	"time"
 )
 
 type Service interface {
-	Register(username string, password string) error
-	LogIn(username string, password string) (string, error)
+	Register(username, password string) error
+	LogIn(username, password string) (string, error)
 	GetCurrentUser(tokenStr string) (*user.User, error)
 }
 
@@ -22,26 +21,35 @@ func NewJWTService(userRepository user.Repository) *JWTService {
 }
 
 func (s *JWTService) Register(username string, password string) error {
+	hashedPassword, err := HashPassword(password)
+	if err != nil {
+		return err
+	}
+
 	u := user.User{
 		Username: username,
-		Password: password,
+		Password: hashedPassword,
 	}
-	_, err := s.userRepository.CreateUser(u)
+	_, err = s.userRepository.CreateUser(u)
 
 	return err
 }
 
-func (s *JWTService) LogIn(username string, password string) (string, error) {
-	u, err := s.userRepository.GetUserByUsernameAndPassword(username, password)
+func (s *JWTService) LogIn(username, password string) (string, error) {
+	u, err := s.userRepository.GetUserByUsername(username)
 	if err != nil {
 		return "", err
 	}
 
-	return utils.CreateJWT(u, 24*time.Hour)
+	if !ComparePassword(u.Password, password) {
+		return "", ErrIncorrectPassword
+	}
+
+	return CreateJWT(u, 24*time.Hour)
 }
 
 func (s *JWTService) GetCurrentUser(tokenStr string) (*user.User, error) {
-	userID, err := utils.VerifyJWT(tokenStr)
+	userID, err := VerifyJWT(tokenStr)
 	if err != nil || userID == nil {
 		return nil, err
 	}

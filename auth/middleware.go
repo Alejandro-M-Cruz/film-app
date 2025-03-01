@@ -16,7 +16,7 @@ func NewAppContextMiddleware(authService Service) *AppContextMiddleware {
 func (m *AppContextMiddleware) UseAppContext(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authorizationHeader := c.Request().Header.Get("Authorization")
-		tokenStr, _ := utils.ExtractJWTFromHeader(authorizationHeader)
+		tokenStr, _ := ExtractJWTFromHeader(authorizationHeader)
 		u, _ := m.authService.GetCurrentUser(tokenStr)
 
 		return next(utils.NewAppContext(c, u))

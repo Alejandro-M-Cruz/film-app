@@ -1,14 +1,11 @@
-package utils
+package auth
 
 import (
-	"errors"
 	"film-app/config"
 	"film-app/user"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
-
-var ErrInvalidToken = errors.New("invalid token")
 
 func CreateJWT(u user.User, expireAfter time.Duration) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{

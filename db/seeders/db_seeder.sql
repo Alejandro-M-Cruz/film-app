@@ -1,6 +1,6 @@
 INSERT INTO users (username, password)
 VALUES
-    ('test', 'password');
+    ('test', '$2a$10$r/P2DZHWL7vOKF.ZkasrcuTEToYAh3q7ZIFd9uTiJx/9UlRX7UpLq' /* password */);
 
 INSERT INTO films (user_id, title, release_date, genre, director, cast, synopsis)
 VALUES

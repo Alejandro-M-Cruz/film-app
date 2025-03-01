@@ -8,7 +8,7 @@ import (
 type Repository interface {
 	CreateUser(user User) (User, error)
 	GetUserByID(id UserID) (User, error)
-	GetUserByUsernameAndPassword(username string, password string) (User, error)
+	GetUserByUsername(username string) (User, error)
 }
 
 type DBRepository struct {
@@ -40,9 +40,9 @@ func (r *DBRepository) GetUserByID(id UserID) (User, error) {
 	return user, result.Error
 }
 
-func (r *DBRepository) GetUserByUsernameAndPassword(username string, password string) (User, error) {
+func (r *DBRepository) GetUserByUsername(username string) (User, error) {
 	var user User
-	result := r.db.Where("username = ? AND password = ?", username, password).First(&user)
+	result := r.db.Where("username = ?", username).First(&user)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return user, ErrUserNotFound
