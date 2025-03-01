@@ -2,6 +2,7 @@ package film
 
 import (
 	"errors"
+	"film-app/permissions"
 	"film-app/utils"
 	"fmt"
 	"github.com/labstack/echo/v4"
@@ -10,13 +11,19 @@ import (
 
 type Controller struct {
 	repository Repository
+	policy     permissions.Policy[Film]
 }
 
-func NewController(repository Repository) *Controller {
-	return &Controller{repository}
+func NewController(repository Repository, policy permissions.Policy[Film]) *Controller {
+	return &Controller{repository, policy}
 }
 
 func (c *Controller) Index(ctx echo.Context) error {
+	ac := ctx.(*utils.AppContext)
+	if !c.policy.CanViewAny(*ac.User()) {
+		return echo.ErrForbidden
+	}
+
 	params := NewParams(ctx.QueryParams())
 	paginatedFilms, err := c.repository.GetPaginatedFilms(params)
 	if err != nil {
@@ -40,11 +47,20 @@ func (c *Controller) Show(ctx echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
+	ac := ctx.(*utils.AppContext)
+	if !c.policy.CanView(*ac.User(), film) {
+		return echo.ErrForbidden
+	}
+
 	return ctx.JSON(http.StatusOK, NewDetail(film))
 }
 
 func (c *Controller) Create(ctx echo.Context) error {
 	ac := ctx.(*utils.AppContext)
+	if !c.policy.CanCreate(*ac.User()) {
+		return echo.ErrForbidden
+	}
+
 	var createFilmRequest CreateFilmRequest
 	if err := ac.Bind(&createFilmRequest); err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -68,10 +84,22 @@ func (c *Controller) Create(ctx echo.Context) error {
 }
 
 func (c *Controller) Update(ctx echo.Context) error {
-	ac := ctx.(*utils.AppContext)
 	filmID, err := ParseFilmID(ctx.Param("id"))
 	if err != nil {
 		return echo.ErrBadRequest
+	}
+
+	film, err := c.repository.GetFilmByID(filmID)
+	if err != nil {
+		if errors.Is(err, ErrFilmNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Film not found")
+		}
+		return echo.ErrInternalServerError
+	}
+
+	ac := ctx.(*utils.AppContext)
+	if !c.policy.CanUpdate(*ac.User(), film) {
+		return echo.ErrForbidden
 	}
 
 	var updateFilmRequest UpdateFilmRequest
@@ -83,12 +111,9 @@ func (c *Controller) Update(ctx echo.Context) error {
 		return ac.JSON(http.StatusUnprocessableEntity, err)
 	}
 
-	film := updateFilmRequest.ToFilm(filmID)
-	err = c.repository.UpdateFilm(film, updateFilmRequest.UpdateMask)
+	updatedFilm := updateFilmRequest.ToFilm(filmID)
+	err = c.repository.UpdateFilm(updatedFilm, updateFilmRequest.UpdateMask)
 	if err != nil {
-		if errors.Is(err, ErrFilmNotFound) {
-			return echo.NewHTTPError(http.StatusNotFound, "Film not found")
-		}
 		return echo.ErrInternalServerError
 	}
 
@@ -101,11 +126,21 @@ func (c *Controller) Delete(ctx echo.Context) error {
 		return echo.ErrBadRequest
 	}
 
-	err = c.repository.DeleteFilmByID(filmId)
+	film, err := c.repository.GetFilmByID(filmId)
 	if err != nil {
 		if errors.Is(err, ErrFilmNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "Film not found")
 		}
+		return echo.ErrInternalServerError
+	}
+
+	ac := ctx.(*utils.AppContext)
+	if !c.policy.CanDelete(*ac.User(), film) {
+		return echo.ErrForbidden
+	}
+
+	err = c.repository.DeleteFilmByID(filmId)
+	if err != nil {
 		return echo.ErrInternalServerError
 	}
 

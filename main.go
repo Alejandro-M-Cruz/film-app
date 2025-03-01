@@ -31,7 +31,8 @@ func main() {
 	authService := auth.NewJWTService(userRepository)
 	authController := auth.NewController(authService, userRepository)
 	filmRepository := film.NewDBRepository(db)
-	filmController := film.NewController(filmRepository)
+	filmPolicy := film.NewPolicy()
+	filmController := film.NewController(filmRepository, filmPolicy)
 	appContextMiddleware := auth.NewAppContextMiddleware(authService)
 
 	e := echo.New()
