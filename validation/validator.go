@@ -13,6 +13,15 @@ var customValidation = map[string]validator.Func{
 		_, ok := film.Genres[fl.Field().String()]
 		return ok
 	},
+	"starts_with_alpha": func(fl validator.FieldLevel) bool {
+		value := fl.Field().String()
+
+		if len(value) == 0 {
+			return false
+		}
+
+		return value[0] >= 'A' && value[0] <= 'Z' || value[0] >= 'a' && value[0] <= 'z'
+	},
 }
 
 type StructValidator struct {
@@ -81,6 +90,10 @@ func messageForFieldError(e validator.FieldError) string {
 		msg = fmt.Sprintf("%s must be at most %s characters long", e.Field(), e.Param())
 	case "genre":
 		msg = fmt.Sprintf("%s is not valid", e.Field())
+	case "alphanum":
+		msg = fmt.Sprintf("%s must be alphanumeric", e.Field())
+	case "starts_with_alpha":
+		msg = fmt.Sprintf("%s must start with a letter", e.Field())
 	default:
 		msg = fmt.Sprintf("%s is not valid", e.Field())
 	}
