@@ -4,6 +4,7 @@ import (
 	"errors"
 	"film-app/utils"
 	"gorm.io/gorm"
+	"strings"
 )
 
 type Repository interface {
@@ -100,7 +101,8 @@ func (r *DBRepository) DeleteFilmByID(id FilmID) error {
 
 func applyFilters(db *gorm.DB, filters Filters) *gorm.DB {
 	if filters.Title != "" {
-		db = db.Where("title LIKE ?", "%"+filters.Title+"%")
+		escapedTitleQuery := escapePercentSign(filters.Title)
+		db = db.Where("title LIKE ? ESCAPE '\\'", "%"+escapedTitleQuery+"%")
 	}
 
 	if len(filters.Genres) > 0 {
@@ -116,4 +118,8 @@ func applyFilters(db *gorm.DB, filters Filters) *gorm.DB {
 	}
 
 	return db
+}
+
+func escapePercentSign(s string) string {
+	return strings.ReplaceAll(s, "%", "\\%")
 }
