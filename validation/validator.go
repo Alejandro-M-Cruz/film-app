@@ -1,19 +1,18 @@
-package utils
+package validation
 
 import (
 	"errors"
+	"film-app/film"
+	"film-app/utils"
 	"fmt"
 	"github.com/go-playground/validator/v10"
-	"reflect"
-	"strings"
 )
 
-func extractJsonFieldName(field reflect.StructField) string {
-	name := strings.SplitN(field.Tag.Get("json"), ",", 2)[0]
-	if name == "-" {
-		return ""
-	}
-	return name
+var customValidation = map[string]validator.Func{
+	"genre": func(fl validator.FieldLevel) bool {
+		_, ok := film.Genres[fl.Field().String()]
+		return ok
+	},
 }
 
 type StructValidator struct {
@@ -21,7 +20,11 @@ type StructValidator struct {
 }
 
 func NewStructValidator(validate *validator.Validate) *StructValidator {
-	validate.RegisterTagNameFunc(extractJsonFieldName)
+	validate.RegisterTagNameFunc(utils.ExtractJsonFieldName)
+	for key, val := range customValidation {
+		err := validate.RegisterValidation(key, val)
+		panic(err)
+	}
 
 	return &StructValidator{validate}
 }
@@ -42,29 +45,29 @@ func (v *StructValidator) Validate(i any) error {
 		errorMessages := make(map[string][]string)
 
 		for _, e := range validationErrors {
-			errorMessages[e.Field()] = append(errorMessages[e.Field()], v.messageForFieldError(e))
+			errorMessages[e.Field()] = append(errorMessages[e.Field()], messageForFieldError(e))
 		}
 
-		return NewErrors(v.messageForValidationErrors(validationErrors), errorMessages)
+		return utils.NewErrors(messageForValidationErrors(validationErrors), errorMessages)
 	}
 
 	return err
 }
 
-func (v *StructValidator) messageForValidationErrors(ve validator.ValidationErrors) string {
+func messageForValidationErrors(ve validator.ValidationErrors) string {
 	switch len(ve) {
 	case 0:
 		return "Validation failed"
 	case 1:
-		return v.messageForFieldError(ve[0])
+		return messageForFieldError(ve[0])
 	case 2:
-		return v.messageForFieldError(ve[0]) + " (and 1 other error)"
+		return messageForFieldError(ve[0]) + " (and 1 other error)"
 	default:
-		return v.messageForFieldError(ve[0]) + fmt.Sprintf(" (and %d other errors)", len(ve)-1)
+		return messageForFieldError(ve[0]) + fmt.Sprintf(" (and %d other errors)", len(ve)-1)
 	}
 }
 
-func (v *StructValidator) messageForFieldError(e validator.FieldError) string {
+func messageForFieldError(e validator.FieldError) string {
 	switch e.Tag() {
 	case "required":
 		return fmt.Sprintf("%s is required", e.Field())
@@ -72,6 +75,8 @@ func (v *StructValidator) messageForFieldError(e validator.FieldError) string {
 		return fmt.Sprintf("%s must be at least %s characters long", e.Field(), e.Param())
 	case "max":
 		return fmt.Sprintf("%s must be at most %s characters long", e.Field(), e.Param())
+	case "genre":
+		return fmt.Sprintf("%s is not a valid genre", e.Field())
 	default:
 		return fmt.Sprintf("%s is not valid", e.Field())
 	}

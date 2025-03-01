@@ -5,7 +5,7 @@ import (
 	"film-app/config"
 	"film-app/film"
 	"film-app/user"
-	"film-app/utils"
+	"film-app/validation"
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -35,7 +35,7 @@ func main() {
 	appContextMiddleware := auth.NewAppContextMiddleware(authService)
 
 	e := echo.New()
-	e.Validator = utils.NewStructValidator(validator.New(validator.WithRequiredStructEnabled()))
+	e.Validator = validation.NewStructValidator(validator.New(validator.WithRequiredStructEnabled()))
 
 	e.Use(appContextMiddleware.UseAppContext)
 	if config.Env.AppDebug {

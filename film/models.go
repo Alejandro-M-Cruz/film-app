@@ -97,5 +97,11 @@ func (c *Cast) Scan(value any) error {
 }
 
 func (c Cast) Value() (driver.Value, error) {
-	return strings.Join(c.Members, ";"), nil
+	members := make([]string, len(c.Members))
+
+	for i, member := range c.Members {
+		members[i] = strings.ReplaceAll(";", ",", member)
+	}
+
+	return strings.Join(members, ";"), nil
 }
