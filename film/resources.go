@@ -33,22 +33,22 @@ func NewResource(film Film) Resource {
 }
 
 type PaginatedCollection struct {
-	Films      []Resource `json:"films"`
-	TotalPages int        `json:"total_pages"`
+	Films []Resource `json:"films"`
+	Total int64      `json:"total"`
 	Params
 }
 
 func NewPaginatedCollection(paginatedFilms utils.Paginated[Film], params Params) PaginatedCollection {
 	resources := make([]Resource, 0)
 
-	for _, film := range paginatedFilms.Data {
+	for _, film := range paginatedFilms.Items {
 		resources = append(resources, NewResource(film))
 	}
 
 	return PaginatedCollection{
-		Films:      resources,
-		TotalPages: paginatedFilms.TotalPages,
-		Params:     params,
+		Films:  resources,
+		Total:  paginatedFilms.Total,
+		Params: params,
 	}
 }
 

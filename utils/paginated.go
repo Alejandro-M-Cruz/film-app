@@ -1,8 +1,8 @@
 package utils
 
 type Paginated[T any] struct {
-	Data       []T
-	Page       int
-	PageSize   int
-	TotalPages int
+	Items    []T
+	Total    int64
+	Page     int
+	PageSize int
 }

@@ -54,10 +54,10 @@ func (r *DBRepository) GetPaginatedFilms(params Params) (utils.Paginated[Film], 
 	}
 
 	page = utils.Paginated[Film]{
-		Data:       films,
-		Page:       params.Page,
-		PageSize:   params.PageSize,
-		TotalPages: max(int(count)/params.PageSize, 1),
+		Items:    films,
+		Page:     params.Page,
+		PageSize: params.PageSize,
+		Total:    count,
 	}
 	return page, nil
 }
