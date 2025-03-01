@@ -59,7 +59,7 @@ func (v *StructValidator) Validate(i any) error {
 			errorMessages[e.Field()] = append(errorMessages[e.Field()], messageForFieldError(e))
 		}
 
-		return utils.NewErrors(messageForValidationErrors(validationErrors), errorMessages)
+		return NewErrors(messageForValidationErrors(validationErrors), errorMessages)
 	}
 
 	return err

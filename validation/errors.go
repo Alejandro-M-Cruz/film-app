@@ -1,4 +1,4 @@
-package utils
+package validation
 
 type Errors struct {
 	Message string              `json:"message"`

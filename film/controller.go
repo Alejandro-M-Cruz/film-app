@@ -2,8 +2,8 @@ package film
 
 import (
 	"errors"
+	"film-app/context"
 	"film-app/permissions"
-	"film-app/utils"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -19,7 +19,7 @@ func NewController(repository Repository, policy permissions.Policy[Film]) *Cont
 }
 
 func (c *Controller) Index(ctx echo.Context) error {
-	ac := ctx.(*utils.AppContext)
+	ac := ctx.(*context.AppContext)
 	if !c.policy.CanViewAny(*ac.User()) {
 		return echo.ErrForbidden
 	}
@@ -47,7 +47,7 @@ func (c *Controller) Show(ctx echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
-	ac := ctx.(*utils.AppContext)
+	ac := ctx.(*context.AppContext)
 	if !c.policy.CanView(*ac.User(), film) {
 		return echo.ErrForbidden
 	}
@@ -56,7 +56,7 @@ func (c *Controller) Show(ctx echo.Context) error {
 }
 
 func (c *Controller) Create(ctx echo.Context) error {
-	ac := ctx.(*utils.AppContext)
+	ac := ctx.(*context.AppContext)
 	if !c.policy.CanCreate(*ac.User()) {
 		return echo.ErrForbidden
 	}
@@ -97,7 +97,7 @@ func (c *Controller) Update(ctx echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
-	ac := ctx.(*utils.AppContext)
+	ac := ctx.(*context.AppContext)
 	if !c.policy.CanUpdate(*ac.User(), film) {
 		return echo.ErrForbidden
 	}
@@ -134,7 +134,7 @@ func (c *Controller) Delete(ctx echo.Context) error {
 		return echo.ErrInternalServerError
 	}
 
-	ac := ctx.(*utils.AppContext)
+	ac := ctx.(*context.AppContext)
 	if !c.policy.CanDelete(*ac.User(), film) {
 		return echo.ErrForbidden
 	}
