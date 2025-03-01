@@ -23,7 +23,9 @@ func NewStructValidator(validate *validator.Validate) *StructValidator {
 	validate.RegisterTagNameFunc(utils.ExtractJsonFieldName)
 	for key, val := range customValidation {
 		err := validate.RegisterValidation(key, val)
-		panic(err)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return &StructValidator{validate}
@@ -68,16 +70,20 @@ func messageForValidationErrors(ve validator.ValidationErrors) string {
 }
 
 func messageForFieldError(e validator.FieldError) string {
+	var msg string
+
 	switch e.Tag() {
 	case "required":
-		return fmt.Sprintf("%s is required", e.Field())
+		msg = fmt.Sprintf("%s is required", e.Field())
 	case "min":
-		return fmt.Sprintf("%s must be at least %s characters long", e.Field(), e.Param())
+		msg = fmt.Sprintf("%s must be at least %s characters long", e.Field(), e.Param())
 	case "max":
-		return fmt.Sprintf("%s must be at most %s characters long", e.Field(), e.Param())
+		msg = fmt.Sprintf("%s must be at most %s characters long", e.Field(), e.Param())
 	case "genre":
-		return fmt.Sprintf("%s is not a valid genre", e.Field())
+		msg = fmt.Sprintf("%s is not valid", e.Field())
 	default:
-		return fmt.Sprintf("%s is not valid", e.Field())
+		msg = fmt.Sprintf("%s is not valid", e.Field())
 	}
+
+	return utils.Capitalize(msg)
 }

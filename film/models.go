@@ -100,7 +100,7 @@ func (c Cast) Value() (driver.Value, error) {
 	members := make([]string, len(c.Members))
 
 	for i, member := range c.Members {
-		members[i] = strings.ReplaceAll(";", ",", member)
+		members[i] = strings.ReplaceAll(member, ";", "")
 	}
 
 	return strings.Join(members, ";"), nil

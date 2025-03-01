@@ -2,6 +2,8 @@ package film
 
 import (
 	"errors"
+	"film-app/utils"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -42,8 +44,34 @@ func (c *Controller) Show(ctx echo.Context) error {
 }
 
 func (c *Controller) Create(ctx echo.Context) error {
-	//TODO implement me
-	panic("implement me")
+	ac := ctx.(*utils.AppContext)
+	var createFilmRequest CreateFilmRequest
+	if err := ac.Bind(&createFilmRequest); err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return echo.ErrBadRequest
+	}
+
+	if err := ac.Validate(createFilmRequest); err != nil {
+		return ac.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	err := c.repository.CreateFilm(Film{
+		Title:       createFilmRequest.Title,
+		ReleaseDate: *createFilmRequest.ReleaseDate,
+		UserID:      ac.User().ID,
+		Director:    createFilmRequest.Director,
+		Genre:       createFilmRequest.Genre,
+		Cast:        Cast{Members: createFilmRequest.Cast},
+		Synopsis:    createFilmRequest.Synopsis,
+	})
+	if err != nil {
+		if errors.Is(err, ErrFilmAlreadyExists) {
+			return echo.NewHTTPError(http.StatusConflict, "Film already exists")
+		}
+		return echo.ErrInternalServerError
+	}
+
+	return ac.NoContent(http.StatusCreated)
 }
 
 func (c *Controller) Update(ctx echo.Context) error {

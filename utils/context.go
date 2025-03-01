@@ -6,10 +6,14 @@ import (
 )
 
 type AppContext struct {
-	User *user.User
+	user *user.User
 	echo.Context
 }
 
-func (c *AppContext) GetUser() *user.User {
-	return c.User
+func NewAppContext(c echo.Context, u *user.User) *AppContext {
+	return &AppContext{user: u, Context: c}
+}
+
+func (ac *AppContext) User() *user.User {
+	return ac.user
 }

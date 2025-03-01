@@ -19,14 +19,14 @@ func (m *AppContextMiddleware) UseAppContext(next echo.HandlerFunc) echo.Handler
 		tokenStr, _ := utils.ExtractJWTFromHeader(authorizationHeader)
 		u, _ := m.authService.GetCurrentUser(tokenStr)
 
-		return next(&utils.AppContext{User: u, Context: c})
+		return next(utils.NewAppContext(c, u))
 	}
 }
 
 func VerifyAuthenticated(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ac := c.(*utils.AppContext)
-		u := ac.GetUser()
+		u := ac.User()
 
 		if u == nil {
 			return echo.ErrUnauthorized
@@ -39,7 +39,7 @@ func VerifyAuthenticated(next echo.HandlerFunc) echo.HandlerFunc {
 func VerifyGuest(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		ac := c.(*utils.AppContext)
-		u := ac.GetUser()
+		u := ac.User()
 
 		if u != nil {
 			return echo.ErrUnauthorized

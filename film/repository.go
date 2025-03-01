@@ -10,6 +10,7 @@ type Repository interface {
 	GetAllFilms() ([]Film, error)
 	GetPaginatedFilms(params Params) (utils.Paginated[Film], error)
 	GetFilmByID(id FilmID) (Film, error)
+	CreateFilm(film Film) error
 	DeleteFilmByID(id FilmID) error
 }
 
@@ -70,6 +71,18 @@ func (r *DBRepository) GetFilmByID(id FilmID) (Film, error) {
 	}
 
 	return film, result.Error
+}
+
+func (r *DBRepository) CreateFilm(film Film) error {
+	result := r.db.Create(&film)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrDuplicatedKey) {
+			return ErrFilmAlreadyExists
+		}
+		return result.Error
+	}
+
+	return nil
 }
 
 func (r *DBRepository) DeleteFilmByID(id FilmID) error {
