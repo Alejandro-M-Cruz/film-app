@@ -72,9 +72,9 @@ func messageForValidationErrors(ve validator.ValidationErrors) string {
 	case 1:
 		return messageForFieldError(ve[0])
 	case 2:
-		return messageForFieldError(ve[0]) + " (and 1 other error)"
+		return messageForFieldError(ve[0]) + " (and 1 more error)"
 	default:
-		return messageForFieldError(ve[0]) + fmt.Sprintf(" (and %d other errors)", len(ve)-1)
+		return messageForFieldError(ve[0]) + fmt.Sprintf(" (and %d more errors)", len(ve)-1)
 	}
 }
 

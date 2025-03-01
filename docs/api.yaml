@@ -1,20 +1,12 @@
 openapi: 3.0.3
 info:
   title: film-app
-  description: |-
-    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
-    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
-    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
-    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
-
-    _If you're looking for the Swagger 2.0/OAS 2.0 version of Petstore, then click [here](https://editor.swagger.io/?url=https://petstore.swagger.io/v2/swagger.yaml). Alternatively, you can load via the `Edit > Load Petstore OAS 2.0` menu option!_
-    
-    Some useful links:
-    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
-    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+  description:
+    Simple API for a film app that allows users to register, login, and CRUD films. Authentication is done using JWT. 
+    All authenticated users can create and access films, but only the user that created a film can update or delete it.
   contact:
     email: alejandromatiascc@gmail.com
-  version: 1.0.11
+  version: 1.0.0
 servers:
   - url: http://localhost:8000
 tags:
@@ -36,11 +28,30 @@ paths:
         '201':
           description: User registered successfully
         '400':
-          description: Invalid input
+          $ref: '#/components/responses/BadRequest'
         '409':
-          description: Conflict (user already exists)
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: Conflict
         '422':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrors'
+              example:
+                message: Username is required (and 1 more error)
+                errors:
+                  username:
+                    - Username is required
+                  password:
+                    - Password is required
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security: []
 
   /auth/login:
@@ -54,15 +65,43 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/AuthRequest'
       responses:
-        '201':
-          description: User registered successfully
+        '200':
+          description: User logged in successfully (returns JWT token)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+              example:
+                token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpYXQiOjE1MTYyMzkwMjJ9.7J1ZQ
         '400':
-          description: Invalid input
-        '409':
-          description: Conflict (user already exists)
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: Wrong username or password
         '422':
           description: Validation error
-      security: [ ]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrors'
+              example:
+                message: Username is required (and 1 more error)
+                errors:
+                  username:
+                    - Username is required
+                  password:
+                    - Password is required
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+      security: []
 
   /films:
     get:
@@ -106,18 +145,16 @@ paths:
             format: date
           description: Return films that were released before the given date
       responses:
-        '201':
+        '200':
           description: Paginated list of films and filters used
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedFilms'
-        '400':
-          description: Invalid input
-        '409':
-          description: Conflict (user already exists)
-        '422':
-          description: Validation error
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - jwt_auth: []
     post:
@@ -132,11 +169,30 @@ paths:
         '201':
           description: Film created successfully
         '400':
-          description: Invalid input
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '409':
           description: Conflict (film already exists)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: Film already exists
         '422':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrors'
+              example:
+                message: Title is required
+                errors:
+                  title:
+                    - Title is required
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - jwt_auth: []
   /films/{id}:
@@ -154,21 +210,21 @@ paths:
             type: integer
             format: int64
       responses:
-        '201':
-          description: Film found
+        '200':
+          description: Film details
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/FilmDetails'
         '400':
-          description: Invalid input
-        '404':
-          description: Film not found
-        '422':
-          description: Validation error
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - jwt_auth: []
-    put:
+    patch:
       tags:
         - films
       summary: Updates a film
@@ -184,14 +240,29 @@ paths:
       requestBody:
         $ref: '#/components/requestBodies/UpdateFilmRequest'
       responses:
-        '201':
+        '200':
           description: Film updated successfully
         '400':
-          description: Invalid input
-        '404':
-          description: Film not found
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '422':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrors'
+              example:
+                message: Title must be at most 255 characters (and 1 more error)
+                errors:
+                  title:
+                    - Title must be at most 255 characters
+                  genre:
+                    - Genre is not valid
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - jwt_auth: []
     delete:
@@ -208,14 +279,16 @@ paths:
             type: integer
             format: int64
       responses:
-        '201':
+        '200':
           description: Film deleted successfully
         '400':
-          description: Invalid input
-        '404':
-          description: Film not found
-        '422':
-          description: Validation error
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
       security:
         - jwt_auth: []
 
@@ -316,6 +389,22 @@ components:
           format: int64
         username:
           type: string
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+    ValidationErrors:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          properties:
+            errors:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
 
   requestBodies:
     AuthRequest:
@@ -357,7 +446,10 @@ components:
                 type: array
                 items:
                   type: string
-                  example: Henry Fonda
+                example:
+                  - Henry Fonda
+                  - Lee J. Cobb
+                  - Martin Balsam
               synopsis:
                 type: string
                 example:
@@ -402,6 +494,47 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/Film'
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Bad Request
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Unauthorized
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Forbidden
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Not Found
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            message: Internal Server Error
   securitySchemes:
     jwt_auth:
       type: http
