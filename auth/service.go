@@ -14,11 +14,11 @@ type Service interface {
 }
 
 type JWTService struct {
-	userService user.Service
+	userRepository user.Repository
 }
 
-func NewJWTService(userService user.Service) *JWTService {
-	return &JWTService{userService}
+func NewJWTService(userRepository user.Repository) *JWTService {
+	return &JWTService{userRepository}
 }
 
 func (s *JWTService) Register(username string, password string) error {
@@ -26,13 +26,13 @@ func (s *JWTService) Register(username string, password string) error {
 		Username: username,
 		Password: password,
 	}
-	_, err := s.userService.CreateUser(u)
+	_, err := s.userRepository.CreateUser(u)
 
 	return err
 }
 
 func (s *JWTService) LogIn(username string, password string) (string, error) {
-	u, err := s.userService.GetUserByUsernameAndPassword(username, password)
+	u, err := s.userRepository.GetUserByUsernameAndPassword(username, password)
 	if err != nil {
 		return "", err
 	}
@@ -46,7 +46,7 @@ func (s *JWTService) GetCurrentUser(tokenStr string) (*user.User, error) {
 		return nil, err
 	}
 
-	u, err := s.userService.GetUserByID(*userID)
+	u, err := s.userRepository.GetUserByID(*userID)
 	if errors.Is(err, user.ErrUserNotFound) {
 		return nil, nil
 	}

@@ -6,25 +6,25 @@ import (
 	"gorm.io/gorm"
 )
 
-type Service interface {
+type Repository interface {
 	GetAllFilms() ([]Film, error)
 	GetPaginatedFilms(params Params) (utils.Paginated[Film], error)
 	GetFilmByID(id FilmID) (Film, error)
 	DeleteFilmByID(id FilmID) error
 }
 
-type DBService struct {
+type DBRepository struct {
 	db *gorm.DB
 }
 
-func NewDBService(db *gorm.DB) *DBService {
-	return &DBService{db}
+func NewDBRepository(db *gorm.DB) *DBRepository {
+	return &DBRepository{db}
 }
 
-func (s *DBService) GetAllFilms() ([]Film, error) {
+func (r *DBRepository) GetAllFilms() ([]Film, error) {
 	var films []Film
 
-	result := s.db.Find(&films)
+	result := r.db.Find(&films)
 	if result.Error != nil {
 		return []Film{}, result.Error
 	}
@@ -32,9 +32,9 @@ func (s *DBService) GetAllFilms() ([]Film, error) {
 	return films, nil
 }
 
-func (s *DBService) GetPaginatedFilms(params Params) (utils.Paginated[Film], error) {
+func (r *DBRepository) GetPaginatedFilms(params Params) (utils.Paginated[Film], error) {
 	var films []Film
-	query := applyFilters(s.db, params.Filters)
+	query := applyFilters(r.db, params.Filters)
 	var page utils.Paginated[Film]
 
 	result := query.
@@ -61,9 +61,9 @@ func (s *DBService) GetPaginatedFilms(params Params) (utils.Paginated[Film], err
 	return page, nil
 }
 
-func (s *DBService) GetFilmByID(id FilmID) (Film, error) {
+func (r *DBRepository) GetFilmByID(id FilmID) (Film, error) {
 	var film Film
-	result := s.db.Preload("User").First(&film, id)
+	result := r.db.Preload("User").First(&film, id)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return film, ErrFilmNotFound
@@ -72,8 +72,8 @@ func (s *DBService) GetFilmByID(id FilmID) (Film, error) {
 	return film, result.Error
 }
 
-func (s *DBService) DeleteFilmByID(id FilmID) error {
-	result := s.db.Delete(&Film{}, id)
+func (r *DBRepository) DeleteFilmByID(id FilmID) error {
+	result := r.db.Delete(&Film{}, id)
 	if result.Error != nil {
 		return result.Error
 	}

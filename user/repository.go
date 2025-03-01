@@ -5,22 +5,22 @@ import (
 	"gorm.io/gorm"
 )
 
-type Service interface {
+type Repository interface {
 	CreateUser(user User) (User, error)
 	GetUserByID(id UserID) (User, error)
 	GetUserByUsernameAndPassword(username string, password string) (User, error)
 }
 
-type DBService struct {
+type DBRepository struct {
 	db *gorm.DB
 }
 
-func NewDBService(db *gorm.DB) *DBService {
-	return &DBService{db}
+func NewDBRepository(db *gorm.DB) *DBRepository {
+	return &DBRepository{db}
 }
 
-func (s *DBService) CreateUser(user User) (User, error) {
-	result := s.db.Create(&user)
+func (r *DBRepository) CreateUser(user User) (User, error) {
+	result := r.db.Create(&user)
 
 	if errors.Is(result.Error, gorm.ErrDuplicatedKey) {
 		return user, ErrUserAlreadyExists
@@ -29,9 +29,9 @@ func (s *DBService) CreateUser(user User) (User, error) {
 	return user, result.Error
 }
 
-func (s *DBService) GetUserByID(id UserID) (User, error) {
+func (r *DBRepository) GetUserByID(id UserID) (User, error) {
 	var user User
-	result := s.db.First(&user, id)
+	result := r.db.First(&user, id)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return user, ErrUserNotFound
@@ -40,9 +40,9 @@ func (s *DBService) GetUserByID(id UserID) (User, error) {
 	return user, result.Error
 }
 
-func (s *DBService) GetUserByUsernameAndPassword(username string, password string) (User, error) {
+func (r *DBRepository) GetUserByUsernameAndPassword(username string, password string) (User, error) {
 	var user User
-	result := s.db.Where("username = ? AND password = ?", username, password).First(&user)
+	result := r.db.Where("username = ? AND password = ?", username, password).First(&user)
 
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return user, ErrUserNotFound

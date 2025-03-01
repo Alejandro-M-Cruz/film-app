@@ -8,12 +8,12 @@ import (
 )
 
 type Controller struct {
-	authService Service
-	userService user.Service
+	authService    Service
+	userRepository user.Repository
 }
 
-func NewController(authService Service, userService user.Service) *Controller {
-	return &Controller{authService, userService}
+func NewController(authService Service, userRepository user.Repository) *Controller {
+	return &Controller{authService, userRepository}
 }
 
 func (c *Controller) Register(ctx echo.Context) error {

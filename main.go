@@ -27,11 +27,11 @@ func main() {
 		panic(err)
 	}
 
-	userService := user.NewDBService(db)
-	authService := auth.NewJWTService(userService)
-	authController := auth.NewController(authService, userService)
-	filmService := film.NewDBService(db)
-	filmController := film.NewController(filmService)
+	userRepository := user.NewDBRepository(db)
+	authService := auth.NewJWTService(userRepository)
+	authController := auth.NewController(authService, userRepository)
+	filmRepository := film.NewDBRepository(db)
+	filmController := film.NewController(filmRepository)
 	appContextMiddleware := auth.NewAppContextMiddleware(authService)
 
 	e := echo.New()
@@ -42,17 +42,17 @@ func main() {
 		e.Use(middleware.Logger())
 	}
 
-	authRouteGroup := e.Group("/auth")
-	authRouteGroup.POST("/register", authController.Register, auth.VerifyGuest)
-	authRouteGroup.POST("/login", authController.LogIn, auth.VerifyGuest)
+	authRoutes := e.Group("/auth")
+	authRoutes.POST("/register", authController.Register, auth.VerifyGuest)
+	authRoutes.POST("/login", authController.LogIn, auth.VerifyGuest)
 
-	filmRouteGroup := e.Group("/films", auth.VerifyAuthenticated)
-	filmRouteGroup.GET("", filmController.Index)
-	filmRouteGroup.GET("/:id", filmController.Show)
-	filmRouteGroup.POST("", filmController.Create)
-	filmRouteGroup.PUT("/:id", filmController.Update)
-	filmRouteGroup.PATCH("/:id", filmController.Update)
-	filmRouteGroup.DELETE("/:id", filmController.Delete)
+	filmRoutes := e.Group("/films", auth.VerifyAuthenticated)
+	filmRoutes.GET("", filmController.Index)
+	filmRoutes.GET("/:id", filmController.Show)
+	filmRoutes.POST("", filmController.Create)
+	filmRoutes.PUT("/:id", filmController.Update)
+	filmRoutes.PATCH("/:id", filmController.Update)
+	filmRoutes.DELETE("/:id", filmController.Delete)
 
 	e.Logger.Fatal(e.Start(config.Env.AppUrl))
 }
