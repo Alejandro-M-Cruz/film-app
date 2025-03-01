@@ -27,3 +27,7 @@ tmp/
 # Database files
 *.db
 *.sqlite3
+
+# Editor files
+.idea/
+.vscode/
