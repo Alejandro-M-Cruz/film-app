@@ -51,7 +51,6 @@ func main() {
 	filmRoutes.GET("", filmController.Index)
 	filmRoutes.GET("/:id", filmController.Show)
 	filmRoutes.POST("", filmController.Create)
-	filmRoutes.PUT("/:id", filmController.Update)
 	filmRoutes.PATCH("/:id", filmController.Update)
 	filmRoutes.DELETE("/:id", filmController.Delete)
 

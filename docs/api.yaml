@@ -1,0 +1,408 @@
+openapi: 3.0.3
+info:
+  title: film-app
+  description: |-
+    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
+    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
+    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
+    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
+
+    _If you're looking for the Swagger 2.0/OAS 2.0 version of Petstore, then click [here](https://editor.swagger.io/?url=https://petstore.swagger.io/v2/swagger.yaml). Alternatively, you can load via the `Edit > Load Petstore OAS 2.0` menu option!_
+    
+    Some useful links:
+    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
+    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+  contact:
+    email: alejandromatiascc@gmail.com
+  version: 1.0.11
+servers:
+  - url: http://localhost:8000
+tags:
+  - name: auth
+    description: JWT authentication
+  - name: films
+    description: Film CRUD
+paths:
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: Registers a user
+      description: Registers a new user using a unique username and a password
+      operationId: auth.register
+      requestBody:
+        $ref: '#/components/requestBodies/AuthRequest'
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid input
+        '409':
+          description: Conflict (user already exists)
+        '422':
+          description: Validation error
+      security: []
+
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Logs in a user
+      description:
+        Finds a user by username, verifies the password matches and returns a JWT token that expires after 24 hours
+      operationId: auth.login
+      requestBody:
+        $ref: '#/components/requestBodies/AuthRequest'
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid input
+        '409':
+          description: Conflict (user already exists)
+        '422':
+          description: Validation error
+      security: [ ]
+
+  /films:
+    get:
+      tags:
+        - films
+      summary: Lists films
+      description: Returns a paginated list of films filtered by title, genres and release date
+      operationId: films.index
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: page_size
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - in: query
+          name: title
+          schema:
+            type: string
+          description: Return films that contain the given title
+        - in: query
+          name: genres
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Genre'
+          description: Return films that have any of the given genres
+        - in: query
+          name: released_after
+          schema:
+            type: string
+            format: date
+          description: Return films that were released after the given date
+        - in: query
+          name: released_before
+          schema:
+            type: string
+            format: date
+          description: Return films that were released before the given date
+      responses:
+        '201':
+          description: Paginated list of films and filters used
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFilms'
+        '400':
+          description: Invalid input
+        '409':
+          description: Conflict (user already exists)
+        '422':
+          description: Validation error
+      security:
+        - jwt_auth: []
+    post:
+      tags:
+        - films
+      summary: Creates a film
+      description: Creates a new film
+      operationId: films.create
+      requestBody:
+        $ref: '#/components/requestBodies/CreateFilmRequest'
+      responses:
+        '201':
+          description: Film created successfully
+        '400':
+          description: Invalid input
+        '409':
+          description: Conflict (film already exists)
+        '422':
+          description: Validation error
+      security:
+        - jwt_auth: []
+  /films/{id}:
+    get:
+      tags:
+        - films
+      summary: Shows a film
+      description: Shows a film by id
+      operationId: films.show
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '201':
+          description: Film found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilmDetails'
+        '400':
+          description: Invalid input
+        '404':
+          description: Film not found
+        '422':
+          description: Validation error
+      security:
+        - jwt_auth: []
+    put:
+      tags:
+        - films
+      summary: Updates a film
+      description: Updates a film by id
+      operationId: films.update
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateFilmRequest'
+      responses:
+        '201':
+          description: Film updated successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Film not found
+        '422':
+          description: Validation error
+      security:
+        - jwt_auth: []
+    delete:
+      tags:
+        - films
+      summary: Deletes a film
+      description: Deletes a film by id
+      operationId: films.delete
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '201':
+          description: Film deleted successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Film not found
+        '422':
+          description: Validation error
+      security:
+        - jwt_auth: []
+
+components:
+  schemas:
+    PaginatedFilms:
+      type: object
+      properties:
+        films:
+          type: array
+          items:
+            $ref: '#/components/schemas/Film'
+        total:
+          type: integer
+          description: Total number of films that match the filters
+        page:
+          type: integer
+        page_size:
+          $ref: '#/components/schemas/PageSize'
+        filters:
+          $ref: '#/components/schemas/FilmFilters'
+    FilmFilters:
+      type: object
+      properties:
+        title:
+          type: string
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+        released_after:
+          type: string
+          format: date
+        released_before:
+          type: string
+          format: date
+    PageSize:
+      type: integer
+      enum:
+        - 10
+        - 20
+        - 50
+    Film:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        director:
+          type: string
+        release_date:
+          type: string
+          format: date
+        genre:
+          $ref: '#/components/schemas/Genre'
+        cast:
+          type: array
+          items:
+            type: string
+        synopsis:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user_id:
+          type: integer
+          format: int64
+    Genre:
+      type: string
+      enum:
+        - action
+        - adventure
+        - comedy
+        - drama
+        - fantasy
+        - horror
+        - mystery
+        - romance
+        - thriller
+        - western
+    FilmDetails:
+      allOf:
+        - $ref: '#/components/schemas/Film'
+        - type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/User'
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+
+  requestBodies:
+    AuthRequest:
+      description: User that should be registered
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                example: test
+              password:
+                type: string
+                example: password
+            required:
+              - username
+              - password
+    CreateFilmRequest:
+      description: Film that should be created
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                example: 12 Angry Men
+              director:
+                type: string
+                example: Sidney Lumet
+              release_date:
+                type: string
+                format: date
+                example: 1957-04-10
+              genre:
+                $ref: '#/components/schemas/Genre'
+              cast:
+                type: array
+                items:
+                  type: string
+                  example: Henry Fonda
+              synopsis:
+                type: string
+                example:
+                  A jury holdout attempts to prevent a miscarriage of justice by forcing his colleagues to reconsider 
+                  the evidence.
+            required:
+              - title
+              - director
+              - release_date
+              - genre
+              - cast
+              - synopsis
+
+    UpdateFilmRequest:
+      description: Fields that should be updated in the film
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              director:
+                type: string
+              release_date:
+                type: string
+                format: date
+              genre:
+                $ref: '#/components/schemas/Genre'
+              cast:
+                type: array
+                items:
+                  type: string
+              synopsis:
+                type: string
+
+    UserArray:
+      description: List of user object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Film'
+  securitySchemes:
+    jwt_auth:
+      type: http
+      scheme: bearer
