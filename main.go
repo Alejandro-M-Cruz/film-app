@@ -5,8 +5,11 @@ import (
 	"film-app/config"
 	"film-app/film"
 	"film-app/user"
+	"film-app/utils"
+	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -32,8 +35,10 @@ func main() {
 	appContextMiddleware := auth.NewAppContextMiddleware(authService)
 
 	e := echo.New()
+	e.Validator = utils.NewStructValidator(validator.New(validator.WithRequiredStructEnabled()))
 
 	e.Use(appContextMiddleware.UseCustomContext)
+	e.Use(middleware.Logger())
 
 	authRouteGroup := e.Group("/auth")
 	authRouteGroup.POST("/register", authController.Register, auth.VerifyGuest)

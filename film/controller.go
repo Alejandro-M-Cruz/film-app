@@ -2,7 +2,6 @@ package film
 
 import (
 	"errors"
-	"film-app/utils"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -35,7 +34,7 @@ func (c *Controller) Show(ctx echo.Context) error {
 	film, err := c.service.GetFilmByID(filmId)
 	if err != nil {
 		if errors.Is(err, ErrFilmNotFound) {
-			return ctx.JSON(http.StatusNotFound, utils.NewError("Film not found"))
+			return echo.NewHTTPError(http.StatusNotFound, "Film not found")
 		}
 		return ctx.JSON(http.StatusInternalServerError, echo.ErrInternalServerError)
 	}
@@ -56,15 +55,15 @@ func (c *Controller) Update(ctx echo.Context) error {
 func (c *Controller) Delete(ctx echo.Context) error {
 	filmId, err := ParseFilmID(ctx.Param("id"))
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, echo.ErrBadRequest)
+		return echo.ErrBadRequest
 	}
 
 	err = c.service.DeleteFilmByID(filmId)
 	if err != nil {
 		if errors.Is(err, ErrFilmNotFound) {
-			return ctx.JSON(http.StatusNotFound, utils.NewError("Film not found"))
+			return echo.NewHTTPError(http.StatusNotFound, "Film not found")
 		}
-		return ctx.JSON(http.StatusInternalServerError, echo.ErrInternalServerError)
+		return echo.ErrInternalServerError
 	}
 
 	return ctx.NoContent(http.StatusNoContent)

@@ -5,10 +5,10 @@ type Errors struct {
 	Errors  map[string][]string `json:"errors,omitempty"`
 }
 
-func NewError(message string) Errors {
-	return Errors{Message: message}
-}
-
 func NewErrors(message string, errors map[string][]string) Errors {
 	return Errors{Message: message, Errors: errors}
+}
+
+func (e Errors) Error() string {
+	return e.Message
 }
