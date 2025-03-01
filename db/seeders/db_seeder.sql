@@ -1,12 +1,10 @@
 INSERT INTO users (username, password)
 VALUES
-    ('user1', 'password'),
-    ('user2', 'password');
-
+    ('test', 'password');
 
 INSERT INTO films (user_id, title, release_date, genre, director, cast, synopsis)
 VALUES
-    (1, 'The Shawshank Redemption', '1994-09-23', 'drama', 'Frank Darabont', 'Tim Robbins;Morgan Freeman;Bob Gunton', 'Two imprisoned'),
+    (1, 'The Shawshank Redemption', '1994-09-23', 'drama', 'Frank Darabont', 'Tim Robbins;Morgan Freeman;Bob Gunton', 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.'),
     (1, 'The Godfather', '1972-03-24', 'crime', 'Francis Ford Coppola', 'Marlon Brando;Al Pacino;James Caan', 'The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.'),
     (1, 'The Dark Knight', '2008-07-18', 'action', 'Christopher Nolan', 'Christian Bale;Heath Ledger;Aaron Eckhart', 'When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept'),
     (1, 'Pulp Fiction', '1994-10-14', 'crime', 'Quentin Tarantino', 'John Travolta;Uma Thurman;Samuel L. Jackson', 'The lives of two mob hitmen, a boxer, a gangster and his wife, and a pair of diner bandits intertwine in four tales of violence and redemption.'),

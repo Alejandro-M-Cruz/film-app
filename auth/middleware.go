@@ -13,7 +13,7 @@ func NewAppContextMiddleware(authService Service) *AppContextMiddleware {
 	return &AppContextMiddleware{authService}
 }
 
-func (m *AppContextMiddleware) UseCustomContext(next echo.HandlerFunc) echo.HandlerFunc {
+func (m *AppContextMiddleware) UseAppContext(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		authorizationHeader := c.Request().Header.Get("Authorization")
 		tokenStr, _ := utils.ExtractJWTFromHeader(authorizationHeader)

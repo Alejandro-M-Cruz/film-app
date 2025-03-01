@@ -37,8 +37,10 @@ func main() {
 	e := echo.New()
 	e.Validator = utils.NewStructValidator(validator.New(validator.WithRequiredStructEnabled()))
 
-	e.Use(appContextMiddleware.UseCustomContext)
-	e.Use(middleware.Logger())
+	e.Use(appContextMiddleware.UseAppContext)
+	if config.Env.AppDebug {
+		e.Use(middleware.Logger())
+	}
 
 	authRouteGroup := e.Group("/auth")
 	authRouteGroup.POST("/register", authController.Register, auth.VerifyGuest)

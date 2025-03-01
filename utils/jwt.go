@@ -10,20 +10,12 @@ import (
 
 var ErrInvalidToken = errors.New("invalid token")
 
-type TokenClaims struct {
-	Username string `json:"username"`
-	jwt.RegisteredClaims
-}
-
 func CreateJWT(u user.User, expireAfter time.Duration) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims{
-		Username: u.Username,
-		RegisteredClaims: jwt.RegisteredClaims{
-			Subject:   u.ID.String(),
-			Issuer:    config.Env.AppName,
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expireAfter)),
-		},
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+		Subject:   u.ID.String(),
+		Issuer:    config.Env.AppName,
+		IssuedAt:  jwt.NewNumericDate(time.Now()),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(expireAfter)),
 	})
 	return token.SignedString([]byte(config.Env.SecretKey))
 }
