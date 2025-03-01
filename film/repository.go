@@ -12,6 +12,7 @@ type Repository interface {
 	GetPaginatedFilms(params Params) (utils.Paginated[Film], error)
 	GetFilmByID(id FilmID) (Film, error)
 	CreateFilm(film Film) error
+	UpdateFilm(film Film, updateMask []string) error
 	DeleteFilmByID(id FilmID) error
 }
 
@@ -81,6 +82,19 @@ func (r *DBRepository) CreateFilm(film Film) error {
 			return ErrFilmAlreadyExists
 		}
 		return result.Error
+	}
+
+	return nil
+}
+
+func (r *DBRepository) UpdateFilm(film Film, updateMask []string) error {
+	result := r.db.Model(&film).Select(updateMask).Updates(&film)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return ErrFilmNotFound
 	}
 
 	return nil

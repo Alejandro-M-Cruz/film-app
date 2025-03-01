@@ -55,15 +55,8 @@ func (c *Controller) Create(ctx echo.Context) error {
 		return ac.JSON(http.StatusUnprocessableEntity, err)
 	}
 
-	err := c.repository.CreateFilm(Film{
-		Title:       createFilmRequest.Title,
-		ReleaseDate: *createFilmRequest.ReleaseDate,
-		UserID:      ac.User().ID,
-		Director:    createFilmRequest.Director,
-		Genre:       createFilmRequest.Genre,
-		Cast:        Cast{Members: createFilmRequest.Cast},
-		Synopsis:    createFilmRequest.Synopsis,
-	})
+	film := createFilmRequest.ToFilm(ac.User().ID)
+	err := c.repository.CreateFilm(film)
 	if err != nil {
 		if errors.Is(err, ErrFilmAlreadyExists) {
 			return echo.NewHTTPError(http.StatusConflict, "Film already exists")
@@ -75,8 +68,31 @@ func (c *Controller) Create(ctx echo.Context) error {
 }
 
 func (c *Controller) Update(ctx echo.Context) error {
-	//TODO implement me
-	panic("implement me")
+	ac := ctx.(*utils.AppContext)
+	filmID, err := ParseFilmID(ctx.Param("id"))
+	if err != nil {
+		return echo.ErrBadRequest
+	}
+
+	var updateFilmRequest UpdateFilmRequest
+	if err := ac.Bind(&updateFilmRequest); err != nil {
+		return echo.ErrBadRequest
+	}
+
+	if err := ac.Validate(updateFilmRequest); err != nil {
+		return ac.JSON(http.StatusUnprocessableEntity, err)
+	}
+
+	film := updateFilmRequest.ToFilm(filmID)
+	err = c.repository.UpdateFilm(film, updateFilmRequest.UpdateMask)
+	if err != nil {
+		if errors.Is(err, ErrFilmNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, "Film not found")
+		}
+		return echo.ErrInternalServerError
+	}
+
+	return ac.NoContent(http.StatusNoContent)
 }
 
 func (c *Controller) Delete(ctx echo.Context) error {
