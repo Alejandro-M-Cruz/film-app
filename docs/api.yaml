@@ -13,14 +13,15 @@ tags:
   - name: auth
     description: JWT authentication
   - name: films
-    description: Film CRUD
+    description: Film CRUD (requires authentication)
 paths:
   /auth/register:
     post:
       tags:
         - auth
       summary: Registers a user
-      description: Registers a new user using a unique username and a password
+      description:
+        Registers a new user using a unique username and a password. Only users that are not logged in can register.
       operationId: auth.register
       requestBody:
         $ref: '#/components/requestBodies/AuthRequest'
@@ -29,6 +30,14 @@ paths:
           description: User registered successfully
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Unauthorized (user is already authenticated)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: You are already authenticated
         '409':
           description: Conflict
           content:
@@ -36,7 +45,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                message: Conflict
+                message: User already exists
         '422':
           description: Validation error
           content:
@@ -52,7 +61,8 @@ paths:
                     - Password is required
         '500':
           $ref: '#/components/responses/InternalServerError'
-      security: []
+      security:
+        - jwt_auth: []
 
   /auth/login:
     post:
@@ -60,7 +70,8 @@ paths:
         - auth
       summary: Logs in a user
       description:
-        Finds a user by username, verifies the password matches and returns a JWT token that expires after 24 hours
+        Finds a user by username, verifies the password matches and returns a JWT token that expires after 24 hours.
+        Only users who are not logged in can log in.
       operationId: auth.login
       requestBody:
         $ref: '#/components/requestBodies/AuthRequest'
@@ -84,8 +95,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                message: Wrong username or password
+              examples:
+                'Wrong username or password':
+                  value:
+                    message: Wrong username or password
+                'Already authenticated':
+                  value:
+                    message: You are already authenticated
         '422':
           description: Validation error
           content:
@@ -101,7 +117,8 @@ paths:
                     - Password is required
         '500':
           $ref: '#/components/responses/InternalServerError'
-      security: []
+      security:
+        - jwt_auth: []
 
   /films:
     get:
@@ -254,6 +271,14 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          description: Conflict (there is another film with the given title)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: Another film with the given title already exists
         '422':
           description: Validation error
           content:

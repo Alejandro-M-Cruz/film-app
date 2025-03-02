@@ -114,6 +114,9 @@ func (c *Controller) Update(ctx echo.Context) error {
 	updatedFilm := updateFilmRequest.ToFilm(filmID)
 	err = c.repository.UpdateFilm(updatedFilm, updateFilmRequest.UpdateMask)
 	if err != nil {
+		if errors.Is(err, ErrFilmAlreadyExists) {
+			return echo.NewHTTPError(http.StatusConflict, "Another film with the given title already exists")
+		}
 		return echo.ErrInternalServerError
 	}
 

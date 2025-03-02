@@ -90,6 +90,9 @@ func (r *DBRepository) CreateFilm(film Film) error {
 func (r *DBRepository) UpdateFilm(film Film, updateMask []string) error {
 	result := r.db.Model(&film).Select(updateMask).Updates(&film)
 	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrDuplicatedKey) {
+			return ErrFilmAlreadyExists
+		}
 		return result.Error
 	}
 
