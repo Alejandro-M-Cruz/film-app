@@ -129,10 +129,11 @@ paths:
         - in: query
           name: genres
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/Genre'
-          description: Return films that have any of the given genres
+            type: string
+            example: drama,thriller
+          description:
+            'Return films that have any of the given genres (comma separated). Options are: `action`, `adventure`,
+            `comedy`, `drama`, `fantasy`, `horror`, `mystery`, `romance`, `thriller` and `western`'
         - in: query
           name: released_after
           schema:
