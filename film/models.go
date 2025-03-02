@@ -12,7 +12,7 @@ import (
 
 type FilmID uint
 
-func ParseFilmID(id string) (FilmID, error) {
+func AtoFilmID(id string) (FilmID, error) {
 	parsedID, err := strconv.Atoi(id)
 	if err != nil {
 		return 0, errors.New("invalid film id")

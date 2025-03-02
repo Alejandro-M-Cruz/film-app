@@ -34,12 +34,12 @@ func (c *Controller) Index(ctx echo.Context) error {
 }
 
 func (c *Controller) Show(ctx echo.Context) error {
-	filmId, err := ParseFilmID(ctx.Param("id"))
+	filmID, err := AtoFilmID(ctx.Param("id"))
 	if err != nil {
 		return echo.ErrBadRequest
 	}
 
-	film, err := c.repository.GetFilmByID(filmId)
+	film, err := c.repository.GetFilmByID(filmID)
 	if err != nil {
 		if errors.Is(err, ErrFilmNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "Film not found")
@@ -84,7 +84,7 @@ func (c *Controller) Create(ctx echo.Context) error {
 }
 
 func (c *Controller) Update(ctx echo.Context) error {
-	filmID, err := ParseFilmID(ctx.Param("id"))
+	filmID, err := AtoFilmID(ctx.Param("id"))
 	if err != nil {
 		return echo.ErrBadRequest
 	}
@@ -121,12 +121,12 @@ func (c *Controller) Update(ctx echo.Context) error {
 }
 
 func (c *Controller) Delete(ctx echo.Context) error {
-	filmId, err := ParseFilmID(ctx.Param("id"))
+	filmID, err := AtoFilmID(ctx.Param("id"))
 	if err != nil {
 		return echo.ErrBadRequest
 	}
 
-	film, err := c.repository.GetFilmByID(filmId)
+	film, err := c.repository.GetFilmByID(filmID)
 	if err != nil {
 		if errors.Is(err, ErrFilmNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "Film not found")
@@ -139,7 +139,7 @@ func (c *Controller) Delete(ctx echo.Context) error {
 		return echo.ErrForbidden
 	}
 
-	err = c.repository.DeleteFilmByID(filmId)
+	err = c.repository.DeleteFilmByID(filmID)
 	if err != nil {
 		return echo.ErrInternalServerError
 	}

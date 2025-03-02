@@ -8,7 +8,7 @@ import (
 
 type UserID uint
 
-func ParseUserID(id string) (UserID, error) {
+func AtoUserID(id string) (UserID, error) {
 	parsedID, err := strconv.Atoi(id)
 	if err != nil {
 		return 0, errors.New("invalid user id")

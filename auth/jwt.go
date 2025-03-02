@@ -30,7 +30,7 @@ func VerifyJWT(tokenStr string) (*user.UserID, error) {
 	}
 
 	userIDStr := token.Claims.(jwt.MapClaims)["sub"].(string)
-	userID, err := user.ParseUserID(userIDStr)
+	userID, err := user.AtoUserID(userIDStr)
 	if err != nil {
 		return nil, err
 	}
