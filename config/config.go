@@ -5,12 +5,13 @@ import (
 	"strings"
 )
 
-var Env config
+var Env env
 
-type config struct {
+type env struct {
 	AppName          string
 	AppEnv           string
 	AppDebug         bool
+	AppPort          string
 	AppUrl           string
 	CorsAllowOrigins []string
 	SecretKey        string
@@ -18,10 +19,11 @@ type config struct {
 }
 
 func InitConfig() {
-	Env = config{
+	Env = env{
 		AppName:          os.Getenv("APP_NAME"),
 		AppEnv:           os.Getenv("APP_ENV"),
 		AppDebug:         os.Getenv("APP_DEBUG") == "true",
+		AppPort:          os.Getenv("APP_PORT"),
 		AppUrl:           os.Getenv("APP_URL"),
 		CorsAllowOrigins: strings.Split(os.Getenv("CORS_ALLOW_ORIGINS"), ","),
 		SecretKey:        os.Getenv("SECRET_KEY"),
