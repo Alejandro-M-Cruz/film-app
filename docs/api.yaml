@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: film-app
   description:
-    Simple API for a film app that allows users to register, login, and CRUD films. Authentication is done using JWT. 
+    Simple API for a film app that allows users to register, login, and CRUD films. Authentication is done using JWT.
     All authenticated users can create and access films, but only the user that created a film can update or delete it.
   contact:
     email: alejandromatiascc@gmail.com
@@ -377,7 +377,7 @@ components:
         synopsis:
           type: string
           example:
-            Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of 
+            Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of
             common decency.
         created_at:
           type: string
@@ -486,7 +486,7 @@ components:
               synopsis:
                 type: string
                 example:
-                  A jury holdout attempts to prevent a miscarriage of justice by forcing his colleagues to reconsider 
+                  A jury holdout attempts to prevent a miscarriage of justice by forcing his colleagues to reconsider
                   the evidence.
             required:
               - title
