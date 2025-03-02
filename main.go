@@ -42,6 +42,11 @@ func main() {
 	if config.Env.AppDebug {
 		e.Use(middleware.Logger())
 	}
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: config.Env.CorsAllowOrigins,
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE, echo.OPTIONS},
+	}))
 
 	authRoutes := e.Group("/auth")
 	authRoutes.POST("/register", authController.Register, auth.VerifyGuest)

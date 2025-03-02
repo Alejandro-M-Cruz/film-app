@@ -116,6 +116,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+            default: 1
         - in: query
           name: page_size
           schema:
@@ -304,8 +305,10 @@ components:
         total:
           type: integer
           description: Total number of films that match the filters
+          example: 1
         page:
           type: integer
+          default: 1
         page_size:
           $ref: '#/components/schemas/PageSize'
         filters:
@@ -315,54 +318,75 @@ components:
       properties:
         title:
           type: string
+          example: "redemption"
         genres:
           type: array
           items:
             $ref: '#/components/schemas/Genre'
+          example:
+            - drama
         released_after:
           type: string
           format: date
+          example: 1990-01-01
         released_before:
           type: string
           format: date
+          example: 2000-01-01
     PageSize:
       type: integer
       enum:
         - 10
         - 20
         - 50
+      default: 10
     Film:
       type: object
       properties:
         id:
           type: integer
           format: int64
+          example: 1
         title:
           type: string
+          example: The Shawshank Redemption
         director:
           type: string
+          example: Frank Darabont
         release_date:
           type: string
           format: date
+          example: 1994-09-23
         genre:
           $ref: '#/components/schemas/Genre'
         cast:
           type: array
           items:
             type: string
+          example:
+            - Tim Robbins
+            - Morgan Freeman
+            - Bob Gunton
         synopsis:
           type: string
+          example:
+            Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of 
+            common decency.
         created_at:
           type: string
           format: date-time
+          example: 2025-03-02T01:03:07.300Z
         updated_at:
           type: string
           format: date-time
+          example: 2025-03-02T01:03:07.300Z
         user_id:
           type: integer
           format: int64
+          example: 1
     Genre:
       type: string
+      default: drama
       enum:
         - action
         - adventure
@@ -387,8 +411,10 @@ components:
         id:
           type: integer
           format: int64
+          example: 1
         username:
           type: string
+          example: test
     Error:
       type: object
       properties:
