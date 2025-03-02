@@ -6,6 +6,7 @@ import (
 	"film-app/utils"
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"reflect"
 )
 
 var customValidation = map[string]validator.Func{
@@ -85,9 +86,9 @@ func messageForFieldError(e validator.FieldError) string {
 	case "required":
 		msg = fmt.Sprintf("%s is required", e.Field())
 	case "min":
-		msg = fmt.Sprintf("%s must be at least %s characters long", e.Field(), e.Param())
+		msg = messageForMinError(e)
 	case "max":
-		msg = fmt.Sprintf("%s must be at most %s characters long", e.Field(), e.Param())
+		msg = messageForMaxError(e)
 	case "genre":
 		msg = fmt.Sprintf("%s is not valid", e.Field())
 	case "alphanum":
@@ -99,4 +100,35 @@ func messageForFieldError(e validator.FieldError) string {
 	}
 
 	return utils.Capitalize(msg)
+}
+
+func messageForMinError(e validator.FieldError) string {
+	return messageForMinOrMaxError(e, "least")
+}
+
+func messageForMaxError(e validator.FieldError) string {
+	return messageForMinOrMaxError(e, "most")
+}
+
+func messageForMinOrMaxError(e validator.FieldError, superlative string) string {
+	switch e.Kind() {
+	case reflect.String:
+		characters := pluralize("character", e.Param())
+
+		return fmt.Sprintf("%s must be at %s %s %s long", e.Field(), superlative, e.Param(), characters)
+	case reflect.Slice, reflect.Array, reflect.Map:
+		items := pluralize("item", e.Param())
+
+		return fmt.Sprintf("%s must have at %s %s %s", e.Field(), superlative, e.Param(), items)
+	default:
+		return fmt.Sprintf("%s must be at %s %s", e.Field(), superlative, e.Param())
+	}
+}
+
+func pluralize(s string, count string) string {
+	if count == "1" {
+		return s
+	}
+
+	return s + "s"
 }
