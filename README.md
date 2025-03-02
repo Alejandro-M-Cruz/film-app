@@ -13,7 +13,7 @@ All authenticated users can create and access films, but only the user that crea
 2. Create an .env file, copy all the variables in .env.example and fill the required values
 3. Run the following command to build the Docker image: `docker compose up --build`
 4. The project will be running on http://localhost:8000
-5. Copy the OpenAPI documentation to the [Swagger Editor](https://editor.swagger.io/)
+5. Copy the OpenAPI documentation in `docs/api.yaml` to a [Swagger Editor](https://editor.swagger.io/)
 6. Try out the API by registering a user, logging in, and using the JWT token to authenticate the other endpoints
    - You can also log in with the pre-registered user:
       - Username: `test`
@@ -34,7 +34,7 @@ All authenticated users can create and access films, but only the user that crea
 4. Create and populate the SQLite database by running the following make command: `make db-fresh` 
 5. Run the project: `go run main.go`
 6. The project will be running on http://localhost:8000
-7. Copy the OpenAPI documentation to the [Swagger Editor](https://editor.swagger.io/)
+7. Copy the OpenAPI documentation in `docs/api.yaml` to a [Swagger Editor](https://editor.swagger.io/)
 8. Try out the API by registering a user, logging in, and using the JWT token to authenticate the other endpoints
     - You can also log in with the pre-registered user:
       - Username: `test`
