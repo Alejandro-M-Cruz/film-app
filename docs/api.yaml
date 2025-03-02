@@ -418,7 +418,7 @@ components:
           example: 1
     Genre:
       type: string
-      default: drama
+      example: drama
       enum:
         - action
         - adventure
