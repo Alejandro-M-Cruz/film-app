@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type UserID uint
+type UserID int64
 
 func AtoUserID(id string) (UserID, error) {
 	parsedID, err := strconv.Atoi(id)

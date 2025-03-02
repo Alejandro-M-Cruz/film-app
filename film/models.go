@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type FilmID uint
+type FilmID int64
 
 func AtoFilmID(id string) (FilmID, error) {
 	parsedID, err := strconv.Atoi(id)
