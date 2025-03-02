@@ -498,19 +498,29 @@ components:
             properties:
               title:
                 type: string
+                example: 12 Angry Men
               director:
                 type: string
+                example: Sidney Lumet
               release_date:
                 type: string
                 format: date
+                example: 1957-04-10
               genre:
                 $ref: '#/components/schemas/Genre'
               cast:
                 type: array
                 items:
                   type: string
+                example:
+                  - Henry Fonda
+                  - Lee J. Cobb
+                  - Martin Balsam
               synopsis:
                 type: string
+                example:
+                  A jury holdout attempts to prevent a miscarriage of justice by forcing his colleagues to reconsider
+                  the evidence.
 
     UserArray:
       description: List of user object
