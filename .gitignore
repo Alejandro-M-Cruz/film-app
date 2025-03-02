@@ -31,3 +31,6 @@ tmp/
 # Editor files
 .idea/
 .vscode/
+
+# macOS
+.DS_Store

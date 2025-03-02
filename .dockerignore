@@ -1,0 +1,12 @@
+vendor/
+tmp/
+.idea/
+.DS_Store
+.vscode/
+film-app
+**/*.db
+**/*.sqlite3
+README.md
+.env.example
+.air.toml
+.gitignore
